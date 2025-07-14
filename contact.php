@@ -138,25 +138,22 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
     <!-- FAQ Section -->
     <section class="section">
         <div class="container">
-            <h2 class="section-title">Frequently Asked Questions</h2>
-            <p class="section-subtitle">Find quick answers to common questions</p>
-            
-            <div class="faq-container">
+            <div class="faq-grid">
                 <div class="faq-item">
                     <div class="faq-question">
-                        How can I apply for admission?
+                        What programs do you offer?
                     </div>
                     <div class="faq-answer">
-                        <p>You can apply online through our website. The application process includes filling out forms, submitting required documents, and payment of application fees. Visit our Apply Now page for detailed instructions.</p>
+                        <p>We offer accredited programs in Health Information Management, Social Work, Hospitality Management, Medical Store Management, and more. Visit our Courses page for a full list.</p>
                     </div>
                 </div>
                 
                 <div class="faq-item">
                     <div class="faq-question">
-                        What are the admission requirements?
+                        How do I apply?
                     </div>
                     <div class="faq-answer">
-                        <p>Admission requirements vary by program. Generally, you need a minimum of 5 credits in relevant subjects including English and Mathematics. Please check our admission page for specific requirements for each program.</p>
+                        <p>You can apply online through our website or visit our campus. The application process includes filling out forms, submitting required documents, and payment of application fees. Visit our Apply Now page for detailed instructions.</p>
                     </div>
                 </div>
                 
@@ -205,7 +202,7 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
             <h2>Ready to Start Your Journey?</h2>
             <p>Contact us today to learn more about our programs and begin your application</p>
             <div class="hero-buttons">
-                <a href="apply.html" class="btn btn-primary btn-lg">Apply Now</a>
+                <a href="apply.php" class="btn btn-primary btn-lg">Apply Now</a>
                 <a href="courses.html" class="btn btn-outline btn-lg">View Courses</a>
             </div>
         </div>
