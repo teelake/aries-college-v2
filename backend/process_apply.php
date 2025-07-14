@@ -74,6 +74,6 @@ if ($stmt->execute()) {
 }
 $stmt->close();
 $conn->close();
-header('Location: ../apply.html');
+header('Location: ../apply.php');
 exit;
 ?> 

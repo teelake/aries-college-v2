@@ -34,6 +34,6 @@ if ($stmt->execute()) {
 }
 $stmt->close();
 $conn->close();
-header('Location: ../contact.html');
+header('Location: ../contact.php');
 exit;
 ?> 
