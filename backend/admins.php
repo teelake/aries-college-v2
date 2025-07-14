@@ -73,6 +73,12 @@ $stmt->close();
         .add-admin-form { margin-top:2rem; max-width:400px; background:#fff; padding:1.5rem; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
         .add-admin-form input { width:100%; margin-bottom:1rem; padding:0.6rem; border-radius:5px; border:1px solid #e5e7eb; }
         .add-admin-form button { width:100%; }
+        .profile-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 2rem; }
+        .profile-dropdown { position: relative; }
+        .profile-btn { background: #fff; color: #1e3a8a; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: none; }
+        .profile-menu { display: none; position: absolute; right: 0; top: 48px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); z-index: 10; }
+        .profile-menu a { display: block; padding: 0.8rem 1.2rem; color: #1e3a8a; text-decoration: none; }
+        .profile-menu a:hover { background: #f1f5f9; }
     </style>
 </head>
 <body>

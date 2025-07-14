@@ -1852,3 +1852,53 @@ p {
         grid-template-columns: 1fr;
     }
 } 
+
+/* Admin Sidebar and Main Content Layout */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #1e3a8a;
+    color: #fff;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    z-index: 100;
+}
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+.sidebar a.active, .sidebar a:hover {
+    background: #fff;
+    color: #1e3a8a;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+}
+.main-content {
+    margin-left: 240px;
+    padding: 2rem;
+}
+@media (max-width: 900px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        flex-direction: row;
+        padding: 1rem;
+        min-height: unset;
+    }
+    .sidebar a {
+        margin: 0 1rem 0 0;
+        display: inline-block;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+} 
