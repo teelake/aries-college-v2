@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - export GIT_WORK_TREE=/home/achtecho/public_html/new
+    - export GIT_DIR=/home/achtecho/repositories/aries-college-v2.git
+    - git --work-tree=$GIT_WORK_TREE --git-dir=$GIT_DIR checkout -f
