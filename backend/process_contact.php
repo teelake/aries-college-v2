@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'db_connect.php';
 
 // Validate and sanitize input
@@ -13,16 +14,26 @@ $subject = clean($_POST['subject'] ?? '', $conn);
 $message = clean($_POST['message'] ?? '', $conn);
 
 if (!$name || !$email || !$subject || !$message) {
-    die("Please fill all required fields with valid data.");
+    $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Please fill all required fields with valid data.'];
+    header('Location: ../contact.html');
+    exit;
 }
 
 $stmt = $conn->prepare("INSERT INTO contact_messages (full_name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)");
 $stmt->bind_param("sssss", $name, $email, $phone, $subject, $message);
 if ($stmt->execute()) {
-    echo "Thank you for contacting us!";
+    // Send acknowledgment email
+    $to = $email;
+    $mail_subject = "Thank you for contacting Aries College";
+    $mail_msg = "Dear $name,\n\nThank you for reaching out to Aries College. We have received your message and will get back to you soon.\n\nBest regards,\nAries College Team";
+    $headers = "From: Aries College <no-reply@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
+    mail($to, $mail_subject, $mail_msg, $headers);
+    $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Thank you for contacting us! We have sent you an acknowledgment email.'];
 } else {
-    echo "Error: " . $conn->error;
+    $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Error: ' . $conn->error];
 }
 $stmt->close();
 $conn->close();
+header('Location: ../contact.html');
+exit;
 ?> 

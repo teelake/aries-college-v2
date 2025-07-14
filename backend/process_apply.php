@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'db_connect.php';
 
 function clean($data, $conn) {
@@ -38,7 +39,9 @@ if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] === UPLOAD_
 }
 
 if (!$fullName || !$email || !$phone || !$dateOfBirth || !$gender || !$address || !$state || !$lga || !$qualification || !$yearCompleted || !$course || !$photoPath || !$certificatePath) {
-    die("Please fill all required fields and upload required documents.");
+    $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Please fill all required fields and upload required documents.'];
+    header('Location: ../apply.html');
+    exit;
 }
 
 $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -65,10 +68,12 @@ if ($stmt->execute()) {
     $msg .= "You will receive a payment receipt after your payment is confirmed.\n";
     $headers = "From: Aries College <no-reply@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
     mail($to, $subject, $msg, $headers);
-    echo "Application received! Proceed to payment.";
+    $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Application received! We have sent you an acknowledgment email.'];
 } else {
-    echo "Error: " . $conn->error;
+    $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Error: ' . $conn->error];
 }
 $stmt->close();
 $conn->close();
+header('Location: ../apply.html');
+exit;
 ?> 

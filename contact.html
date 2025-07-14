@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,6 +78,12 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
                 <div class="contact-form-section">
                     <h2 class="section-title">Send Us a Message</h2>
                     <p class="section-subtitle">We'd love to hear from you</p>
+                    <?php if (isset($_SESSION['form_message'])): ?>
+                        <div class="form-message <?php echo $_SESSION['form_message']['type']; ?>">
+                            <?php echo htmlspecialchars($_SESSION['form_message']['text']); ?>
+                        </div>
+                        <?php unset($_SESSION['form_message']); ?>
+                    <?php endif; ?>
                     
                     <form action="backend/process_contact.php" method="POST">
                         <div class="form-grid">

@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,6 +59,12 @@
     <!-- Application Form -->
     <section class="section bg-light">
         <div class="container">
+            <?php if (isset($_SESSION['form_message'])): ?>
+                <div class="form-message <?php echo $_SESSION['form_message']['type']; ?>">
+                    <?php echo htmlspecialchars($_SESSION['form_message']['text']); ?>
+                </div>
+                <?php unset($_SESSION['form_message']); ?>
+            <?php endif; ?>
             <form id="applicationForm" class="application-form" method="backend/process_apply.php">
                 <!-- Step 1: Personal Information -->
                 <div class="form-step active" data-step="1">
