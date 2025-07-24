@@ -57,6 +57,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: apply.php');
         exit;
     }
+    // Check for duplicate email or phone
+    $dupStmt = $conn->prepare("SELECT id FROM applications WHERE email = ? OR phone = ? LIMIT 1");
+    $dupStmt->bind_param("ss", $email, $phone);
+    $dupStmt->execute();
+    $dupStmt->store_result();
+    if ($dupStmt->num_rows > 0) {
+        $_SESSION['form_message'] = ['type' => 'error', 'text' => 'An application with this email or phone number already exists. Please use a different email or phone.'];
+        $dupStmt->close();
+        $conn->close();
+        header('Location: apply.php');
+        exit;
+    }
+    $dupStmt->close();
     $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("sssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $yearCompleted, $course, $photoPath, $certificatePath, $paymentMethod);
     if ($stmt->execute()) {
@@ -266,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="form-group">
                             <label for="yearCompleted">Year Completed *</label>
-                            <input type="text" id="yearCompleted" name="yearCompleted" required>
+                            <input type="date" id="yearCompleted" name="yearCompleted" required>
                         </div>
                         <div class="form-group">
                             <label for="course">Which program are you applying for? *</label>
