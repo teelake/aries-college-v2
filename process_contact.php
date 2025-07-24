@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db_connect.php';
+require_once 'backend/db_connect.php';
 
 // Validate and sanitize input
 function clean($data, $conn) {
@@ -15,7 +15,7 @@ $message = clean($_POST['message'] ?? '', $conn);
 
 if (!$name || !$email || !$subject || !$message) {
     $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Please fill all required fields with valid data.'];
-    header('Location: ../contact.php');
+    header('Location: contact.php');
     exit;
 }
 
@@ -34,6 +34,6 @@ if ($stmt->execute()) {
 }
 $stmt->close();
 $conn->close();
-header('Location: ../contact.php');
+header('Location: contact.php');
 exit;
 ?> 

@@ -85,7 +85,7 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
                         <?php unset($_SESSION['form_message']); ?>
                     <?php endif; ?>
                     
-                    <form action="backend/process_contact.php" method="POST">
+                    <form action="process_contact.php" method="POST">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="name">Full Name *</label>
