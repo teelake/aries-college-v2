@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $to = $email;
         $mail_subject = "Thank you for contacting Aries College";
         $mail_msg = "Dear $name,\n\nThank you for reaching out to Aries College. We have received your message and will get back to you soon.\n\nBest regards,\nAries College Team";
-        $headers = "From: Aries College <info@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
+        $headers = "From: Aries College <no-reply@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
         if (mail($to, $mail_subject, $mail_msg, $headers)) {
             $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Thank you for contacting us! We have sent you an acknowledgment email.'];
         } else {
@@ -58,6 +58,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="img/logo.png">
+    <style>
+    .form-message.success {
+        background: #d1fae5;
+        color: #065f46;
+        border-left: 6px solid #10b981;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .form-message.error {
+        background: #fee2e2;
+        color: #991b1b;
+        border-left: 6px solid #ef4444;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    </style>
 </head>
 <body>
     <!-- Header Placeholder -->
