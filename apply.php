@@ -145,120 +145,154 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php unset($_SESSION['form_message']); ?>
             <?php endif; ?>
-            <form action="" method="POST" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="fullName">Full Name *</label>
-                        <input type="text" id="fullName" name="fullName" required>
+            <form id="applicationForm" action="" method="POST" enctype="multipart/form-data">
+                <div class="progress-container">
+                    <div class="progress-step active">
+                        <div class="progress-number">1</div>
+                        <span>Personal Info</span>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email Address *</label>
-                        <input type="email" id="email" name="email" required>
+                    <div class="progress-step">
+                        <div class="progress-number">2</div>
+                        <span>Academic Info</span>
                     </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number *</label>
-                        <input type="tel" id="phone" name="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="dateOfBirth">Date of Birth *</label>
-                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="gender">Gender *</label>
-                        <select id="gender" name="gender" required>
-                            <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Address *</label>
-                        <input type="text" id="address" name="address" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="state">State *</label>
-                        <select id="state" name="state" required>
-                            <option value="">Select State</option>
-                            <option value="Abia">Abia</option>
-                            <option value="Adamawa">Adamawa</option>
-                            <option value="Akwa Ibom">Akwa Ibom</option>
-                            <option value="Anambra">Anambra</option>
-                            <option value="Bauchi">Bauchi</option>
-                            <option value="Bayelsa">Bayelsa</option>
-                            <option value="Benue">Benue</option>
-                            <option value="Borno">Borno</option>
-                            <option value="Cross River">Cross River</option>
-                            <option value="Delta">Delta</option>
-                            <option value="Ebonyi">Ebonyi</option>
-                            <option value="Edo">Edo</option>
-                            <option value="Ekiti">Ekiti</option>
-                            <option value="Enugu">Enugu</option>
-                            <option value="Gombe">Gombe</option>
-                            <option value="Imo">Imo</option>
-                            <option value="Jigawa">Jigawa</option>
-                            <option value="Kaduna">Kaduna</option>
-                            <option value="Kano">Kano</option>
-                            <option value="Katsina">Katsina</option>
-                            <option value="Kebbi">Kebbi</option>
-                            <option value="Kogi">Kogi</option>
-                            <option value="Kwara">Kwara</option>
-                            <option value="Lagos">Lagos</option>
-                            <option value="Nasarawa">Nasarawa</option>
-                            <option value="Niger">Niger</option>
-                            <option value="Ogun">Ogun</option>
-                            <option value="Ondo">Ondo</option>
-                            <option value="Osun">Osun</option>
-                            <option value="Oyo">Oyo</option>
-                            <option value="Plateau">Plateau</option>
-                            <option value="Rivers">Rivers</option>
-                            <option value="Sokoto">Sokoto</option>
-                            <option value="Taraba">Taraba</option>
-                            <option value="Yobe">Yobe</option>
-                            <option value="Zamfara">Zamfara</option>
-                            <option value="FCT">FCT</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lga">LGA *</label>
-                        <select id="lga" name="lga" required>
-                            <option value="">Select LGA</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lastSchool">Last School Attended</label>
-                        <input type="text" id="lastSchool" name="lastSchool">
-                    </div>
-                    <div class="form-group">
-                        <label for="qualification">Qualification *</label>
-                        <input type="text" id="qualification" name="qualification" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="yearCompleted">Year Completed *</label>
-                        <input type="text" id="yearCompleted" name="yearCompleted" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="course">Program Applied For *</label>
-                        <input type="text" id="course" name="course" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentMethod">Payment Method *</label>
-                        <select id="paymentMethod" name="paymentMethod" required>
-                            <option value="">Select Payment Method</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Online Payment">Online Payment</option>
-                            <option value="Cash">Cash</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="photo">Passport Photo (JPG/PNG) *</label>
-                        <input type="file" id="photo" name="photo" accept="image/*" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="certificate">Certificate (PDF/JPG/PNG) *</label>
-                        <input type="file" id="certificate" name="certificate" accept=".pdf,image/*" required>
+                    <div class="progress-step">
+                        <div class="progress-number">3</div>
+                        <span>Uploads & Payment</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+                <div class="form-step active" data-step="1">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth *</label>
+                            <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender *</label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address *</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-primary next-step">Next</button>
+                    </div>
+                </div>
+                <div class="form-step" data-step="2">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="state">State *</label>
+                            <select id="state" name="state" required>
+                                <option value="">Select State</option>
+                                <option value="Abia">Abia</option>
+                                <option value="Adamawa">Adamawa</option>
+                                <option value="Akwa Ibom">Akwa Ibom</option>
+                                <option value="Anambra">Anambra</option>
+                                <option value="Bauchi">Bauchi</option>
+                                <option value="Bayelsa">Bayelsa</option>
+                                <option value="Benue">Benue</option>
+                                <option value="Borno">Borno</option>
+                                <option value="Cross River">Cross River</option>
+                                <option value="Delta">Delta</option>
+                                <option value="Ebonyi">Ebonyi</option>
+                                <option value="Edo">Edo</option>
+                                <option value="Ekiti">Ekiti</option>
+                                <option value="Enugu">Enugu</option>
+                                <option value="Gombe">Gombe</option>
+                                <option value="Imo">Imo</option>
+                                <option value="Jigawa">Jigawa</option>
+                                <option value="Kaduna">Kaduna</option>
+                                <option value="Kano">Kano</option>
+                                <option value="Katsina">Katsina</option>
+                                <option value="Kebbi">Kebbi</option>
+                                <option value="Kogi">Kogi</option>
+                                <option value="Kwara">Kwara</option>
+                                <option value="Lagos">Lagos</option>
+                                <option value="Nasarawa">Nasarawa</option>
+                                <option value="Niger">Niger</option>
+                                <option value="Ogun">Ogun</option>
+                                <option value="Ondo">Ondo</option>
+                                <option value="Osun">Osun</option>
+                                <option value="Oyo">Oyo</option>
+                                <option value="Plateau">Plateau</option>
+                                <option value="Rivers">Rivers</option>
+                                <option value="Sokoto">Sokoto</option>
+                                <option value="Taraba">Taraba</option>
+                                <option value="Yobe">Yobe</option>
+                                <option value="Zamfara">Zamfara</option>
+                                <option value="FCT">FCT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lga">LGA *</label>
+                            <select id="lga" name="lga" required>
+                                <option value="">Select LGA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastSchool">Last School Attended</label>
+                            <input type="text" id="lastSchool" name="lastSchool">
+                        </div>
+                        <div class="form-group">
+                            <label for="qualification">Qualification *</label>
+                            <input type="text" id="qualification" name="qualification" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="yearCompleted">Year Completed *</label>
+                            <input type="text" id="yearCompleted" name="yearCompleted" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course">Program Applied For *</label>
+                            <input type="text" id="course" name="course" required>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-outline prev-step">Previous</button>
+                        <button type="button" class="btn btn-primary next-step">Next</button>
+                    </div>
+                </div>
+                <div class="form-step" data-step="3">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method *</label>
+                            <select id="paymentMethod" name="paymentMethod" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Online Payment">Online Payment</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="photo">Passport Photo (JPG/PNG) *</label>
+                            <input type="file" id="photo" name="photo" accept="image/*" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="certificate">Certificate (PDF/JPG/PNG) *</label>
+                            <input type="file" id="certificate" name="certificate" accept=".pdf,image/*" required>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-outline prev-step">Previous</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+                    </div>
+                </div>
             </form>
         </div>
     </section>
