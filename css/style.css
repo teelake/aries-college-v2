@@ -482,6 +482,52 @@ p {
     gap: 2rem;
 }
 
+/* Mobile responsive improvements for contact grid */
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .contact-item {
+        padding: 1.5rem;
+    }
+    
+    .contact-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .contact-item h5 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .contact-item p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .contact-item {
+        padding: 1.25rem;
+    }
+    
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+
 .contact-item {
     text-align: center;
     padding: 2rem;
@@ -573,6 +619,39 @@ p {
     margin-bottom: 1rem;
     box-shadow: var(--shadow);
     overflow: hidden;
+}
+
+/* Mobile responsive improvements for FAQ */
+@media (max-width: 768px) {
+    .faq-grid {
+        gap: 1rem;
+    }
+    
+    .faq-item {
+        margin-bottom: 0.75rem;
+    }
+    
+    .faq-question {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    .faq-answer {
+        padding: 0 1rem 1rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-question {
+        padding: 0.875rem;
+        font-size: 0.95rem;
+    }
+    
+    .faq-answer {
+        padding: 0 0.875rem 0.875rem;
+        font-size: 0.9rem;
+    }
 }
 
 .faq-question {
@@ -1013,6 +1092,178 @@ p {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
+}
+
+/* Mobile responsive styles for contact container */
+@media (max-width: 768px) {
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .contact-form-section,
+    .contact-info-section {
+        padding: 1.5rem;
+    }
+    
+    .contact-form-section h2 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .contact-form-section .section-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.875rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .contact-info-section h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .contact-info-section p {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Make map responsive */
+    .contact-info-section iframe {
+        min-height: 250px;
+        border-radius: 12px;
+        width: 100%;
+    }
+    
+    .map-wrapper {
+        position: relative;
+        width: 100%;
+        height: 250px;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .map-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    /* Improve form spacing and readability */
+    .contact-form-section {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+    }
+    
+    /* Better touch targets for mobile */
+    .form-group label {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Improve select dropdown on mobile */
+    .form-group select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-container {
+        gap: 1.5rem;
+    }
+    
+    .contact-form-section,
+    .contact-info-section {
+        padding: 1rem;
+    }
+    
+    .contact-form-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .contact-info-section h3 {
+        font-size: 1.25rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem;
+    }
+    
+    .btn-lg {
+        padding: 12px 24px;
+        font-size: 1rem;
+        width: 100%;
+    }
+    
+    /* Adjust map height for very small screens */
+    .contact-info-section iframe {
+        min-height: 200px;
+        width: 100%;
+    }
+    
+    .map-wrapper {
+        height: 200px;
+    }
+    
+    /* Improve contact info section styling */
+    .contact-info-section {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+    }
+    
+    /* Better spacing for contact info text */
+    .contact-info-section p {
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Ensure proper container padding on mobile */
+    .container {
+        padding: 0 1rem;
+    }
+    
+    /* Improve overall page spacing on mobile */
+    .section {
+        padding: 3rem 0;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
 }
 
 .contact-form-container h3,

@@ -127,7 +127,7 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
                 <div class="contact-info-section">
                     <h3>Our Location</h3>
                     <p>Find us on the map below. We look forward to welcoming you to our campus in Oyo State, Nigeria.</p>
-                    <div style="width:100%;height:350px;max-width:100%;margin-top:1rem;">
+                    <div class="map-wrapper" style="width:100%;height:350px;max-width:100%;margin-top:1rem;overflow:hidden;border-radius:16px;">
                         <iframe width="100%" height="100%" frameborder="0" style="border:0;border-radius:16px;min-height:300px;" allowfullscreen src="https://www.google.com/maps?q=7.374129618901634,3.824550635426423&hl=es;z=16&output=embed"></iframe>
                     </div>
                 </div>
