@@ -1,6 +1,14 @@
 <?php
 session_start();
-// Contact form processing logic (moved from process_contact.php)
+require_once __DIR__ . '/vendor/autoload.php'; // PHPMailer autoload
+// SMTP settings
+$smtpHost = 'mail.achtech.org.ng';
+$smtpUsername = 'no-reply@achtech.org.ng';
+$smtpPassword = 'Temp_pass123';
+$smtpPort = 465; // 465 for SSL, 587 for TLS
+$smtpFrom = 'no-reply@achtech.org.ng';
+$smtpFromName = 'Aries College';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Database connection (inlined)
     $DB_HOST = 'localhost';
@@ -25,15 +33,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare("INSERT INTO contact_messages (full_name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("sssss", $name, $email, $phone, $subject, $message);
     if ($stmt->execute()) {
-        // Send acknowledgment email
-        $to = $email;
-        $mail_subject = "Thank you for contacting Aries College";
-        $mail_msg = "Dear $name,\n\nThank you for reaching out to Aries College. We have received your message and will get back to you soon.\n\nBest regards,\nAries College Team";
-        $headers = "From: Aries College <no-reply@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
-        if (mail($to, $mail_subject, $mail_msg, $headers)) {
+        // Send acknowledgment email using PHPMailer
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = $smtpHost;
+            $mail->SMTPAuth = true;
+            $mail->Username = $smtpUsername;
+            $mail->Password = $smtpPassword;
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = $smtpPort;
+            $mail->setFrom($smtpFrom, $smtpFromName);
+            $mail->addAddress($email, $name);
+            $mail->Subject = "Thank you for contacting Aries College";
+            $mail_msg = "Dear $name,\n\nThank you for reaching out to Aries College. We have received your message and will get back to you soon.\n\nBest regards,\nAries College Team";
+            $mail->Body = $mail_msg;
+            $mail->send();
             $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Thank you for contacting us! We have sent you an acknowledgment email.'];
-        } else {
-            $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your message was saved, but we could not send an acknowledgment email. Please check your email address or try again later.'];
+        } catch (Exception $e) {
+            $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your message was saved, but we could not send an acknowledgment email. Mailer Error: ' . $mail->ErrorInfo];
         }
     } else {
         $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Error: ' . $conn->error];
