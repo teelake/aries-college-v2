@@ -15,7 +15,7 @@ $message = clean($_POST['message'] ?? '', $conn);
 
 if (!$name || !$email || !$subject || !$message) {
     $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Please fill all required fields with valid data.'];
-    header('Location: ../contact.html');
+    header('Location: ../contact.php');
     exit;
 }
 
