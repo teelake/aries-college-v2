@@ -134,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+    <!-- Header Placeholder -->
     <div id="main-header"></div>
     <section class="section bg-light">
         <div class="container">
@@ -190,13 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="address">Address *</label>
                             <input type="text" id="address" name="address" required>
                         </div>
-                    </div>
-                    <div class="form-navigation">
-                        <button type="button" class="btn btn-primary next-step">Next</button>
-                    </div>
-                </div>
-                <div class="form-step" data-step="2">
-                    <div class="form-grid">
                         <div class="form-group">
                             <label for="state">State *</label>
                             <select id="state" name="state" required>
@@ -246,21 +240,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="">Select LGA</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-primary next-step">Next</button>
+                    </div>
+                </div>
+                <div class="form-step" data-step="2">
+                    <div class="form-grid">
                         <div class="form-group">
                             <label for="lastSchool">Last School Attended</label>
                             <input type="text" id="lastSchool" name="lastSchool">
                         </div>
                         <div class="form-group">
                             <label for="qualification">Qualification *</label>
-                            <input type="text" id="qualification" name="qualification" required>
+                            <select id="qualification" name="qualification" required>
+                                <option value="">Select Qualification</option>
+                                <option value="WAEC">WAEC</option>
+                                <option value="NECO">NECO</option>
+                                <option value="NABTEB">NABTEB</option>
+                                <option value="OND">OND</option>
+                                <option value="HND">HND</option>
+                                <option value="BSc">BSc</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="yearCompleted">Year Completed *</label>
                             <input type="text" id="yearCompleted" name="yearCompleted" required>
                         </div>
                         <div class="form-group">
-                            <label for="course">Program Applied For *</label>
-                            <input type="text" id="course" name="course" required>
+                            <label for="course">Which program are you applying for? *</label>
+                            <select id="course" name="course" required>
+                                <option value="">Select Program</option>
+                                <option value="Health Information Management">Health Information Management</option>
+                                <option value="Hospitality Management">Hospitality Management</option>
+                                <option value="Paramedics">Paramedics</option>
+                                <option value="Social Work">Social Work</option>
+                                <option value="Medical Store Management">Medical Store Management</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-navigation">
@@ -296,7 +314,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
     </section>
+    <!-- Footer Placeholder -->
     <div id="main-footer"></div>
+    <!-- Dynamic Header/Footer Loading Script -->
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Load header
+    fetch('header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('main-header').innerHTML = data;
+            // Set active nav link for current page
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+            // Re-initialize navbar after header is loaded
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+            }
+        })
+        .catch(error => console.error('Error loading header:', error));
+    // Load footer
+    fetch('footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('main-footer').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading footer:', error));
+});
+</script>
     <script src="js/main.js"></script>
     <script>
 // Nigerian States and LGAs mapping
