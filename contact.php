@@ -1,7 +1,7 @@
 <?php
+session_start();
 // Contact form processing logic (moved from process_contact.php)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    session_start();
     // Database connection (inlined)
     $DB_HOST = 'localhost';
     $DB_USER = 'achtecho_user';
@@ -29,9 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $to = $email;
         $mail_subject = "Thank you for contacting Aries College";
         $mail_msg = "Dear $name,\n\nThank you for reaching out to Aries College. We have received your message and will get back to you soon.\n\nBest regards,\nAries College Team";
-        $headers = "From: Aries College <no-reply@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
-        mail($to, $mail_subject, $mail_msg, $headers);
-        $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Thank you for contacting us! We have sent you an acknowledgment email.'];
+        $headers = "From: Aries College <info@achtech.org.ng>\r\nContent-type: text/plain; charset=UTF-8";
+        if (mail($to, $mail_subject, $mail_msg, $headers)) {
+            $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Thank you for contacting us! We have sent you an acknowledgment email.'];
+        } else {
+            $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your message was saved, but we could not send an acknowledgment email. Please check your email address or try again later.'];
+        }
     } else {
         $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Error: ' . $conn->error];
     }
