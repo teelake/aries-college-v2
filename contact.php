@@ -1,6 +1,10 @@
 <?php
 session_start();
-require_once __DIR__ . '/vendor/autoload.php'; // PHPMailer autoload
+require_once __DIR__ . '/phpmailer/PHPMailer.php';
+require_once __DIR__ . '/phpmailer/SMTP.php';
+require_once __DIR__ . '/phpmailer/Exception.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 // SMTP settings
 $smtpHost = 'mail.achtech.org.ng';
 $smtpUsername = 'no-reply@achtech.org.ng';
@@ -34,14 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("sssss", $name, $email, $phone, $subject, $message);
     if ($stmt->execute()) {
         // Send acknowledgment email using PHPMailer
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
             $mail->Host = $smtpHost;
             $mail->SMTPAuth = true;
             $mail->Username = $smtpUsername;
             $mail->Password = $smtpPassword;
-            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port = $smtpPort;
             $mail->setFrom($smtpFrom, $smtpFromName);
             $mail->addAddress($email, $name);
