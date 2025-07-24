@@ -227,6 +227,10 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
                             link.classList.add('active');
                         }
                     });
+                    // Re-initialize navbar after header is loaded
+                    if (typeof initNavbar === 'function') {
+                        initNavbar();
+                    }
                 })
                 .catch(error => console.error('Error loading header:', error));
 

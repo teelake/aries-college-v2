@@ -1871,10 +1871,17 @@ p {
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
+        z-index: 1000;
     }
 
     .navbar-toggle {
         display: block;
+        z-index: 1001;
+    }
+    
+    /* Ensure navbar container has proper layout on mobile */
+    .navbar-container {
+        position: relative;
     }
 
     .hero-content {
