@@ -36,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $qualification = clean($_POST['qualification'] ?? '', $conn);
     $yearCompleted = clean($_POST['yearCompleted'] ?? '', $conn);
     $course = clean($_POST['course'] ?? '', $conn);
-    $paymentMethod = clean($_POST['paymentMethod'] ?? '', $conn);
     // File uploads (photo, certificate)
     $photoPath = '';
     $certificatePath = '';
@@ -70,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     $dupStmt->close();
-    $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $yearCompleted, $course, $photoPath, $certificatePath, $paymentMethod);
+    $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $yearCompleted, $course, $photoPath, $certificatePath);
     if ($stmt->execute()) {
         // Send email to applicant with all form details using PHPMailer
         $mail = new PHPMailer(true);
@@ -101,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg .= "Program Applied: $course\n";
             $msg .= "\n---\n";
             $msg .= "This is a confirmation of your application.\n";
-            $msg .= "You will receive a payment receipt after your payment is confirmed.\n";
+            $msg .= "Application Fee: ₦10,000 (Ten Thousand Naira)\n";
+            $msg .= "Payment will be processed through Remita payment gateway.\n";
             $mail->Body = $msg;
             $mail->send();
             $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Application received! We have sent you an acknowledgment email.'];
@@ -271,10 +271,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="WAEC">WAEC</option>
                                 <option value="NECO">NECO</option>
                                 <option value="NABTEB">NABTEB</option>
-                                <option value="OND">OND</option>
-                                <option value="HND">HND</option>
-                                <option value="BSc">BSc</option>
-                                <option value="Other">Other</option>
+                              
+                        
                             </select>
                         </div>
                         <div class="form-group">
@@ -286,11 +284,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <select id="course" name="course" required>
                                 <option value="">Select Program</option>
                                 <option value="Health Information Management">Health Information Management</option>
-                                <option value="Hospitality Management">Hospitality Management</option>
-                                <option value="Paramedics">Paramedics</option>
                                 <option value="Social Work">Social Work</option>
-                                <option value="Medical Store Management">Medical Store Management</option>
-                                <option value="Other">Other</option>
+                                <option value="Hospitality Management">Hospitality Management</option>
+                                <option value="Medical Store Technology">Medical Store Technology</option>
+                                <option value="Paramedics">Paramedics</option>
+                                <option value="Hospital Administration and Healthcare Management">Hospital Administration and Healthcare Management</option>
+                                <option value="Health Care Technician">Health Care Technician</option>
+                                <option value="Environmental Health">Environmental Health</option>
+                                <option value="Pharmacy Technician">Pharmacy Technician</option>
                             </select>
                         </div>
                     </div>
@@ -302,15 +303,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-step" data-step="3">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="paymentMethod">Payment Method *</label>
-                            <select id="paymentMethod" name="paymentMethod" required>
-                                <option value="">Select Payment Method</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Online Payment">Online Payment</option>
-                                <option value="Cash">Cash</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="photo">Passport Photo (JPG/PNG) *</label>
                             <input type="file" id="photo" name="photo" accept="image/*" required>
                         </div>
@@ -321,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-navigation">
                         <button type="button" class="btn btn-outline prev-step">Previous</button>
-                        <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Application & Pay ₦10,000</button>
                     </div>
                 </div>
             </form>
