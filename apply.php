@@ -286,10 +286,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="Health Information Management">Health Information Management</option>
                                 <option value="Social Work">Social Work</option>
                                 <option value="Hospitality Management">Hospitality Management</option>
-                                <option value="Medical Store Technology">Medical Store Technology</option>
+                                <option value="Medical Store Management Technology">Medical Store Management Technology</option>
                                 <option value="Paramedics">Paramedics</option>
                                 <option value="Hospital Administration and Healthcare Management">Hospital Administration and Healthcare Management</option>
                                 <option value="Health Care Technician">Health Care Technician</option>
+                                <option value="Junior Community Health Extension Workers (JCHEW)">Junior Community Health Extension Workers (JCHEW)</option>
+                                <option value="X-Ray Technician">X-Ray Technician</option>
+                                <option value="Mental Health">Mental Health</option>
                                 <option value="Environmental Health">Environmental Health</option>
                                 <option value="Pharmacy Technician">Pharmacy Technician</option>
                             </select>
