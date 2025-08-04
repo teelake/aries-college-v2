@@ -415,6 +415,22 @@ p {
     border-left: 5px solid var(--accent-red);
 }
 
+/* Mobile responsive for mission-vision */
+@media (max-width: 768px) {
+    .mission-vision .row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .mission-card, .vision-card {
+        padding: 1.5rem;
+    }
+    
+    .mission-card h3, .vision-card h3 {
+        font-size: 1.25rem;
+    }
+}
+
 .mission-card h3, .vision-card h3 {
     color: var(--primary-blue);
     margin-bottom: 1rem;
@@ -1854,7 +1870,7 @@ p {
 @media (max-width: 768px) {
     .navbar-nav {
         position: fixed;
-        top: 100%;
+        top: 80px;
         left: 0;
         right: 0;
         background: var(--white);
@@ -1865,13 +1881,13 @@ p {
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
+        z-index: 1000;
     }
 
     .navbar-nav.active {
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
-        z-index: 1000;
     }
 
     .navbar-toggle {
