@@ -285,6 +285,16 @@ p {
     padding: 80px 0;
 }
 
+/* Add top padding to account for fixed navbar */
+.section:first-of-type {
+    padding-top: 120px;
+}
+
+/* Specific fix for application form page */
+.bg-light.section {
+    padding-top: 120px;
+}
+
 .section-title {
     text-align: center;
     color: var(--primary-blue);
@@ -1963,6 +1973,12 @@ p {
     .section {
         padding: 60px 0;
     }
+    
+    /* Adjust top padding for mobile to account for fixed navbar */
+    .section:first-of-type,
+    .bg-light.section {
+        padding-top: 100px;
+    }
 
     .container {
         padding: 0 1rem;
@@ -2029,6 +2045,12 @@ p {
 
     .card {
         padding: 1.5rem;
+    }
+    
+    /* Further adjust top padding for very small screens */
+    .section:first-of-type,
+    .bg-light.section {
+        padding-top: 90px;
     }
 }
 
