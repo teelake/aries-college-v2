@@ -22,7 +22,7 @@ if (isset($_POST['add_admin'])) {
             $msg = "Username or email already exists.";
         } else {
             $hash = password_hash($password, PASSWORD_BCRYPT);
-            $stmt = $conn->prepare("INSERT INTO admin_users (username, email, password) VALUES (?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO admin_users (username, email, password_hash) VALUES (?, ?, ?)");
             $stmt->bind_param("sss", $username, $email, $hash);
             $stmt->execute();
             $stmt->close();
