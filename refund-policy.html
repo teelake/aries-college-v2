@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Policy - Aries College of Health Management & Technology</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="img/logo.png">
+</head>
+<body>
+    <!-- Header Placeholder -->
+    <div id="main-header"></div>
+    
+    <section class="section bg-light">
+        <div class="container">
+            <h2 class="section-title">Refund Policy</h2>
+            <p class="section-subtitle">Our commitment to fair and transparent refund practices</p>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <h3><i class="fas fa-shield-alt text-primary"></i> Application Fee Refunds</h3>
+                        <p>At Aries College of Health Management & Technology, we understand that circumstances may change after submitting an application. Our refund policy is designed to be fair and transparent for all applicants.</p>
+                        
+                        <h4>Eligible for Full Refund (100%)</h4>
+                        <ul>
+                            <li><strong>Application Processing Error:</strong> If we are unable to process your application due to technical issues on our end</li>
+                            <li><strong>Duplicate Payment:</strong> If you accidentally make multiple payments for the same application</li>
+                            <li><strong>System Error:</strong> If payment is processed but application is not received due to system failure</li>
+                            <li><strong>Course Cancellation:</strong> If the program you applied for is cancelled by the institution</li>
+                        </ul>
+                        
+                        <h4>Eligible for Partial Refund (50%)</h4>
+                        <ul>
+                            <li><strong>Withdrawal Before Processing:</strong> If you withdraw your application before we begin processing it (within 24 hours of submission)</li>
+                            <li><strong>Documentation Issues:</strong> If you cannot provide required documentation and choose to withdraw</li>
+                        </ul>
+                        
+                        <h4>Non-Refundable</h4>
+                        <ul>
+                            <li><strong>Processing Started:</strong> Once we begin processing your application (after 24 hours)</li>
+                            <li><strong>Application Approved:</strong> If your application is approved and you choose not to enroll</li>
+                            <li><strong>Application Rejected:</strong> If your application is rejected due to incomplete information or failure to meet requirements</li>
+                            <li><strong>Change of Mind:</strong> If you simply change your mind about applying</li>
+                        </ul>
+                        
+                        <h4>Refund Process</h4>
+                        <ol>
+                            <li><strong>Request Submission:</strong> Submit a written refund request to <a href="mailto:admissions@ariescollege.edu.ng">admissions@ariescollege.edu.ng</a></li>
+                            <li><strong>Review Period:</strong> We will review your request within 5-7 business days</li>
+                            <li><strong>Approval Notification:</strong> You will receive an email notification if your refund is approved</li>
+                            <li><strong>Processing Time:</strong> Approved refunds will be processed within 10-15 business days</li>
+                            <li><strong>Payment Method:</strong> Refunds will be made to the original payment method used</li>
+                        </ol>
+                        
+                        <h4>Required Information for Refund Requests</h4>
+                        <ul>
+                            <li>Full name as it appears on the application</li>
+                            <li>Application reference number</li>
+                            <li>Email address used during application</li>
+                            <li>Phone number</li>
+                            <li>Reason for refund request</li>
+                            <li>Date of application submission</li>
+                            <li>Payment transaction ID (if available)</li>
+                        </ul>
+                        
+                        <h4>Contact Information</h4>
+                        <p>For refund inquiries and requests, please contact us:</p>
+                        <ul>
+                            <li><strong>Email:</strong> <a href="mailto:admissions@ariescollege.edu.ng">admissions@ariescollege.edu.ng</a></li>
+                            <li><strong>Phone:</strong> +234 803 123 4567</li>
+                            <li><strong>Address:</strong> Aries College of Health Management & Technology, [Your Address]</li>
+                        </ul>
+                        
+                        <h4>Important Notes</h4>
+                        <ul>
+                            <li>All refund requests must be submitted within 30 days of payment</li>
+                            <li>Processing fees charged by payment gateways are non-refundable</li>
+                            <li>Refund decisions are final and binding</li>
+                            <li>This policy is subject to change with prior notice</li>
+                            <li>For disputes, please contact our customer service team</li>
+                        </ul>
+                        
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Need Help?</h5>
+                            <p>If you have any questions about our refund policy or need assistance with your refund request, please don't hesitate to contact our admissions team. We're here to help!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer Placeholder -->
+    <div id="main-footer"></div>
+    
+    <!-- Dynamic Header/Footer Loading Script -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Load header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('main-header').innerHTML = data;
+                // Set active nav link for current page
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === currentPage) {
+                        link.classList.add('active');
+                    }
+                });
+                // Re-initialize navbar after header is loaded
+                if (typeof initNavbar === 'function') {
+                    initNavbar();
+                }
+            })
+            .catch(error => console.error('Error loading header:', error));
+        
+        // Load footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('main-footer').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    });
+    </script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
