@@ -1,4 +1,6 @@
 <?php
+// Start output buffering to prevent headers already sent error
+ob_start();
 session_start();
 require_once 'db_connect.php';
 
@@ -44,4 +46,7 @@ try {
     header('Location: admin_login.php');
     exit;
 }
+
+// Clean up output buffer
+ob_end_flush();
 ?> 
