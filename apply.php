@@ -289,6 +289,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="course">Which program are you applying for? *</label>
                             <select id="course" name="course" required>
                                 <option value="">Select Program</option>
+                                <option value="Community Health">Community Health</option>
+                                <option value="Public Health">Public Health</option>
                                 <option value="Health Information Management">Health Information Management</option>
                                 <option value="Social Work">Social Work</option>
                                 <option value="Hospitality Management">Hospitality Management</option>
@@ -296,9 +298,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="Paramedics">Paramedics</option>
                                 <option value="Hospital Administration and Healthcare Management">Hospital Administration and Healthcare Management</option>
                                 <option value="Health Care Technician">Health Care Technician</option>
-                                <option value="Junior Community Health Extension Workers (JCHEW)">Junior Community Health Extension Workers (JCHEW)</option>
-                                <option value="X-Ray Technician">X-Ray Technician</option>
-                                <option value="Mental Health">Mental Health</option>
                                 <option value="Environmental Health">Environmental Health</option>
                                 <option value="Pharmacy Technician">Pharmacy Technician</option>
                             </select>
