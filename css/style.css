@@ -293,6 +293,18 @@ p {
 /* Specific fix for application form page */
 .bg-light.section {
     padding-top: 120px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    position: relative;
+}
+
+.bg-light.section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-red));
 }
 
 /* Modern Policy Pages Styling */
@@ -581,17 +593,38 @@ p {
 .section-title {
     text-align: center;
     color: var(--primary-blue);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-red));
+    border-radius: 2px;
 }
 
 .section-subtitle {
     text-align: center;
-    color: var(--text-gray);
-    font-size: 1.1rem;
+    color: var(--dark-gray);
+    font-size: 1.25rem;
+    font-weight: 500;
     margin-bottom: 3rem;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+    line-height: 1.6;
 }
 
 .container {
@@ -1603,13 +1636,23 @@ p {
     }
     
     .section-title {
-        font-size: 1.75rem;
-        margin-bottom: 1rem;
+        font-size: 2.25rem;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-title::after {
+        width: 60px;
+        height: 3px;
     }
     
     .section-subtitle {
-        font-size: 1rem;
+        font-size: 1.1rem;
         margin-bottom: 2rem;
+        font-weight: 500;
     }
 }
 
