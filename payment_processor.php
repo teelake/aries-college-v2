@@ -32,7 +32,9 @@ class PaymentProcessor {
         // Create transaction record
         $stmt = $this->conn->prepare("INSERT INTO transactions (application_id, amount, currency, reference, status, payment_gateway, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
         $status = PAYMENT_STATUS_PENDING;
-        $stmt->bind_param("idssss", $applicationId, $amount, CURRENCY, $reference, $status, $this->gateway);
+        $currency = CURRENCY;
+        $gateway = $this->gateway;
+        $stmt->bind_param("idssss", $applicationId, $amount, $currency, $reference, $status, $gateway);
         
         if (!$stmt->execute()) {
             throw new Exception('Failed to create transaction record: ' . $this->conn->error);
