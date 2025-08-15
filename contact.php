@@ -249,7 +249,7 @@ Falade Layout, Oluyole Extension, Apata, Ibadan.</p>
                         How much is the application fee?
                     </div>
                     <div class="faq-answer">
-                        <p>The application fee is ₦10,000 (Ten Thousand Naira). This fee is non-refundable and covers the cost of processing your application.</p>
+                        <p>The application fee is ₦10,230 (Ten Thousand Two Hundred and Thirty Naira). This fee is non-refundable and covers the cost of processing your application.</p>
                     </div>
                 </div>
                 

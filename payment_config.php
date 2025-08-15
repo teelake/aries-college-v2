@@ -17,7 +17,7 @@ define('FLUTTERWAVE_ENCRYPTION_KEY', 'FLWSECK_TESTaf2b99a9e5a3'); // Your Flutte
 define('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.com/v3');
 
 // Application Fee Configuration
-define('APPLICATION_FEE', 10000); // ₦10,000 in Naira
+define('APPLICATION_FEE', 10230); // ₦10,230 in Naira
 define('CURRENCY', 'NGN');
 
 // Payment Callback URLs

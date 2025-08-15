@@ -111,7 +111,7 @@ define('PAYMENT_WEBHOOK_URL', 'https://yourdomain.com/payment_webhook.php');
 ### Test Bank Transfer
 - Bank: `Test Bank`
 - Account Number: `1234567890`
-- Amount: `10000`
+- Amount: `10230`
 
 ## Files Overview
 

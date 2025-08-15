@@ -107,7 +107,7 @@ define('FLUTTERWAVE_PUBLIC_KEY', 'your_public_key');
 define('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.com/v3');
 
 // Application Fee
-define('APPLICATION_FEE', 10000); // ₦10,000
+define('APPLICATION_FEE', 10230); // ₦10,230
 ```
 
 ## Maintenance

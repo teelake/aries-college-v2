@@ -50,11 +50,17 @@ try {
     $photoPath = '';
     $certificatePath = '';
     $uploadDir = 'uploads/';
+    $passportsDir = $uploadDir . 'passports/';
+    $certificatesDir = $uploadDir . 'certificates/';
+    
+    // Create directories if they don't exist
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+    if (!is_dir($passportsDir)) mkdir($passportsDir, 0777, true);
+    if (!is_dir($certificatesDir)) mkdir($certificatesDir, 0777, true);
     
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
         $photoExt = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-        $photoPath = $uploadDir . uniqid('photo_') . '.' . $photoExt;
+        $photoPath = $passportsDir . uniqid('photo_') . '.' . $photoExt;
         if (!move_uploaded_file($_FILES['photo']['tmp_name'], $photoPath)) {
             throw new Exception('Failed to upload photo.');
         }
@@ -64,7 +70,7 @@ try {
     
     if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] === UPLOAD_ERR_OK) {
         $certExt = pathinfo($_FILES['certificate']['name'], PATHINFO_EXTENSION);
-        $certificatePath = $uploadDir . uniqid('cert_') . '.' . $certExt;
+        $certificatePath = $certificatesDir . uniqid('cert_') . '.' . $certExt;
         if (!move_uploaded_file($_FILES['certificate']['tmp_name'], $certificatePath)) {
             throw new Exception('Failed to upload certificate.');
         }
@@ -125,7 +131,7 @@ try {
         $msg .= "Application ID: $applicationId\n\n";
         $msg .= "---\n";
         $msg .= "PAYMENT REQUIRED\n";
-        $msg .= "Application Fee: ₦10,000 (Ten Thousand Naira)\n\n";
+        $msg .= "Application Fee: ₦10,230 (Ten Thousand Two Hundred and Thirty Naira)\n\n";
         $msg .= "To complete your application, please click the payment link below:\n";
         $msg .= $paymentResult['authorization_url'] . "\n\n";
         $msg .= "Payment Reference: " . $paymentResult['reference'] . "\n\n";

@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $msg .= "Application ID: $applicationId\n\n";
                 $msg .= "---\n";
                 $msg .= "PAYMENT REQUIRED\n";
-                $msg .= "Application Fee: ₦10,000 (Ten Thousand Naira)\n\n";
+                $msg .= "Application Fee: ₦10,230 (Ten Thousand Two Hundred and Thirty Naira)\n\n";
                 $msg .= "To complete your application, please click the payment link below:\n";
                 $msg .= $paymentResult['authorization_url'] . "\n\n";
                 $msg .= "Payment Reference: " . $paymentResult['reference'] . "\n\n";
@@ -362,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="payment-info">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Application Fee:</strong> ₦10,000 (Ten Thousand Naira)
+                            <strong>Application Fee:</strong> ₦10,230 (Ten Thousand Two Hundred and Thirty Naira)
                             <br>
                             <small>Your application will only be processed after successful payment.</small>
                         </div>
@@ -370,7 +370,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-navigation">
                         <button type="button" class="btn btn-outline prev-step">Previous</button>
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-credit-card"></i> Submit Application & Pay ₦10,000
+                            <i class="fas fa-credit-card"></i> Submit Application & Pay ₦10,230
                         </button>
                     </div>
                 </div>
