@@ -191,21 +191,40 @@ class PaymentProcessor {
             'Authorization: Bearer ' . FLUTTERWAVE_SECRET_KEY
         ];
         
-        $response = $this->makeHttpRequest($url, 'GET', null, $headers);
-        
-        if ($response['status'] === 'success' && $response['data']['status'] === 'successful') {
-            return [
-                'success' => true,
-                'amount' => $response['data']['amount'],
-                'reference' => $response['data']['tx_ref'],
-                'gateway_reference' => $response['data']['id'],
-                'status' => PAYMENT_STATUS_SUCCESS
-            ];
-        } else {
+        try {
+            $response = $this->makeHttpRequest($url, 'GET', null, $headers);
+            
+            error_log("Flutterwave verification response for $reference: " . json_encode($response));
+            
+            if ($response['status'] === 'success' && isset($response['data']['status'])) {
+                if ($response['data']['status'] === 'successful') {
+                    return [
+                        'success' => true,
+                        'amount' => $response['data']['amount'],
+                        'reference' => $response['data']['tx_ref'],
+                        'gateway_reference' => $response['data']['id'],
+                        'status' => PAYMENT_STATUS_SUCCESS
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'status' => PAYMENT_STATUS_FAILED,
+                        'message' => 'Payment status: ' . $response['data']['status']
+                    ];
+                }
+            } else {
+                return [
+                    'success' => false,
+                    'status' => PAYMENT_STATUS_FAILED,
+                    'message' => $response['message'] ?? 'Payment verification failed'
+                ];
+            }
+        } catch (Exception $e) {
+            error_log("Flutterwave verification error for $reference: " . $e->getMessage());
             return [
                 'success' => false,
                 'status' => PAYMENT_STATUS_FAILED,
-                'message' => $response['message'] ?? 'Payment verification failed'
+                'message' => 'Verification error: ' . $e->getMessage()
             ];
         }
     }

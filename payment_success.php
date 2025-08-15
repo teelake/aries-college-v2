@@ -15,11 +15,11 @@ $applicationData = null;
 $transactionData = null;
 
 try {
-    // Get reference from URL or session
-    $reference = $_GET['reference'] ?? $_GET['trxref'] ?? $_SESSION['payment_reference'] ?? null;
+    // Get reference from URL parameters (Flutterwave uses tx_ref)
+    $reference = $_GET['tx_ref'] ?? $_GET['reference'] ?? $_GET['trxref'] ?? $_SESSION['payment_reference'] ?? null;
     
     if (!$reference) {
-        throw new Exception('Payment reference not found');
+        throw new Exception('Payment reference not found. Please check the URL parameters.');
     }
     
     // Verify payment
@@ -253,6 +253,20 @@ function sendPaymentConfirmationEmail($application, $transaction) {
                     </div>
                     <h2 class="section-title">Payment Error</h2>
                     <p class="section-subtitle"><?php echo htmlspecialchars($paymentMessage); ?></p>
+                    
+                    <?php if (strpos($paymentMessage, 'No transaction was found') !== false): ?>
+                        <div class="payment-details">
+                            <h3>USSD Payment Information</h3>
+                            <p><strong>This is a common issue with USSD payments in test mode.</strong></p>
+                            <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+                                <li>USSD payments can take 5-10 minutes to appear in the verification system</li>
+                                <li>Test mode transactions may require manual verification</li>
+                                <li>Please wait a few minutes and try refreshing this page</li>
+                                <li>Check your Flutterwave dashboard for transaction status</li>
+                            </ul>
+                            <p style="margin-top: 1rem;"><strong>Reference:</strong> <?php echo htmlspecialchars($reference ?? 'N/A'); ?></p>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
                 
                 <div class="action-buttons">
@@ -260,9 +274,15 @@ function sendPaymentConfirmationEmail($application, $transaction) {
                         <i class="fas fa-home"></i> Go to Homepage
                     </a>
                     <?php if ($paymentStatus !== 'success'): ?>
-                        <a href="apply.php" class="btn-apply">
-                            <i class="fas fa-edit"></i> Try Again
-                        </a>
+                        <?php if (strpos($paymentMessage, 'No transaction was found') !== false): ?>
+                            <a href="javascript:location.reload();" class="btn-apply">
+                                <i class="fas fa-sync-alt"></i> Refresh Page
+                            </a>
+                        <?php else: ?>
+                            <a href="apply.php" class="btn-apply">
+                                <i class="fas fa-edit"></i> Try Again
+                            </a>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
