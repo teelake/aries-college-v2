@@ -100,8 +100,18 @@ try {
     $stmt->close();
     
     // Initialize payment
-    $paymentProcessor = new PaymentProcessor();
-    $paymentResult = $paymentProcessor->initializePayment($applicationId, $email);
+    try {
+        $paymentProcessor = new PaymentProcessor();
+        $paymentResult = $paymentProcessor->initializePayment($applicationId, $email);
+        
+        if (!$paymentResult || !isset($paymentResult['authorization_url'])) {
+            throw new Exception('Payment initialization failed: No payment URL received');
+        }
+    } catch (Exception $paymentError) {
+        // Log the payment error for debugging
+        error_log("Payment initialization error: " . $paymentError->getMessage());
+        throw new Exception('Payment initialization failed: ' . $paymentError->getMessage());
+    }
     
     // Store payment reference in session
     $_SESSION['payment_reference'] = $paymentResult['reference'];
@@ -163,9 +173,18 @@ try {
     
 } catch (Exception $e) {
     http_response_code(400);
+    
+    // Log the full error for debugging
+    error_log("Application submission error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+    
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'debug_info' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]
     ]);
 } finally {
     if (isset($conn)) {

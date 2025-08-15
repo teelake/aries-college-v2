@@ -1,17 +1,66 @@
 // Main JavaScript for Aries College Website
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all components
-    initNavbar();
-    initAnimations();
-    initFAQ();
-    initContactForm();
-    initApplicationForm();
-    initGallery();
-    initSmoothScrolling();
-    initApplicationProgress();
-    initGalleryFilter();
-    initStateLgaDropdown();
+    // Initialize all components with error handling
+    try {
+        initNavbar();
+    } catch (e) {
+        console.log('Navbar initialization skipped:', e.message);
+    }
+    
+    try {
+        initAnimations();
+    } catch (e) {
+        console.log('Animations initialization skipped:', e.message);
+    }
+    
+    try {
+        initFAQ();
+    } catch (e) {
+        console.log('FAQ initialization skipped:', e.message);
+    }
+    
+    try {
+        initContactForm();
+    } catch (e) {
+        console.log('Contact form initialization skipped:', e.message);
+    }
+    
+    try {
+        initApplicationForm();
+    } catch (e) {
+        console.log('Application form initialization skipped:', e.message);
+    }
+    
+    try {
+        initGallery();
+    } catch (e) {
+        console.log('Gallery initialization skipped:', e.message);
+    }
+    
+    try {
+        initSmoothScrolling();
+    } catch (e) {
+        console.log('Smooth scrolling initialization skipped:', e.message);
+    }
+    
+    try {
+        initApplicationProgress();
+    } catch (e) {
+        console.log('Application progress initialization skipped:', e.message);
+    }
+    
+    try {
+        initGalleryFilter();
+    } catch (e) {
+        console.log('Gallery filter initialization skipped:', e.message);
+    }
+    
+    try {
+        initStateLgaDropdown();
+    } catch (e) {
+        console.log('State/LGA dropdown initialization skipped:', e.message);
+    }
 });
 
 // Navbar functionality
@@ -26,17 +75,25 @@ function initNavbar() {
         return;
     }
     
+    // Additional safety check for all navbar elements
+    if (!navbarToggle || !navbarNav) {
+        console.log('Some navbar elements not found, skipping navbar functionality');
+        return;
+    }
+    
     // Mobile menu toggle
     if (navbarToggle && navbarNav) {
         navbarToggle.addEventListener('click', function() {
-            navbarNav.classList.toggle('active');
-            
-            // Change icon
-            const icon = this.querySelector('i');
-            if (navbarNav.classList.contains('active')) {
-                icon.className = 'fas fa-times';
-            } else {
-                icon.className = 'fas fa-bars';
+            if (navbarNav) {
+                navbarNav.classList.toggle('active');
+                
+                // Change icon
+                const icon = this.querySelector('i');
+                if (icon && navbarNav.classList.contains('active')) {
+                    icon.className = 'fas fa-times';
+                } else if (icon) {
+                    icon.className = 'fas fa-bars';
+                }
             }
         });
     }

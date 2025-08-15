@@ -549,6 +549,8 @@ class PaymentProcessor {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For testing only
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // For testing only
         
         if ($method === 'POST' && $data) {
             curl_setopt($ch, CURLOPT_POST, true);
@@ -560,15 +562,27 @@ class PaymentProcessor {
         $error = curl_error($ch);
         curl_close($ch);
         
+        // Log the request and response for debugging
+        error_log("Payment API Request - URL: $url, Method: $method, Data: " . json_encode($data));
+        error_log("Payment API Response - HTTP Code: $httpCode, Response: $response");
+        
         if ($error) {
+            error_log("cURL Error: " . $error);
             throw new Exception('cURL error: ' . $error);
         }
         
         if ($httpCode !== 200) {
-            throw new Exception('HTTP error: ' . $httpCode);
+            error_log("HTTP Error: $httpCode - Response: $response");
+            throw new Exception('HTTP error: ' . $httpCode . ' - Response: ' . $response);
         }
         
-        return json_decode($response, true);
+        $decodedResponse = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg() . " - Response: $response");
+            throw new Exception('Invalid JSON response: ' . json_last_error_msg());
+        }
+        
+        return $decodedResponse;
     }
     
     /**

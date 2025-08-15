@@ -388,14 +388,20 @@ form.addEventListener('submit', function(e) {
                 window.location.href = data.data.payment_url;
             }, 2000);
         } else {
-            showClientError(data.message);
+            console.error('Server error:', data);
+            let errorMessage = data.message || 'An error occurred. Please try again.';
+            if (data.debug_info) {
+                console.error('Debug info:', data.debug_info);
+                errorMessage += ' (Check console for details)';
+            }
+            showClientError(errorMessage);
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     })
     .catch(error => {
         console.error('Fetch error:', error);
-        showClientError('An error occurred. Please try again.');
+        showClientError('Network error: ' + error.message);
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
