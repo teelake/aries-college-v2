@@ -121,12 +121,56 @@ try {
 // Test 6: Test payment initialization
 echo "<h2>Test 6: Payment Initialization Test</h2>";
 try {
-    $paymentProcessor = new PaymentProcessor();
-    $result = $paymentProcessor->initializePayment(999, 'test@example.com', 10230);
+    // First create a test application in the database
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
-    echo "✅ Payment initialization successful<br>";
-    echo "Reference: " . $result['reference'] . "<br>";
-    echo "Payment URL: " . $result['authorization_url'] . "<br>";
+    // Insert a test application
+    $testStmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path, payment_status, application_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending_payment', NOW())");
+    
+    $testName = 'Test User';
+    $testEmail = 'test@example.com';
+    $testPhone = '08012345678';
+    $testDob = '1990-01-01';
+    $testGender = 'Male';
+    $testAddress = 'Test Address';
+    $testState = 'Lagos';
+    $testLga = 'Ikeja';
+    $testSchool = 'Test School';
+    $testQual = 'SSCE';
+    $testYear = '2010-01-01';
+    $testCourse = 'Medical Laboratory Science';
+    $testPhoto = 'uploads/passports/test_photo.jpg';
+    $testCert = 'uploads/certificates/test_cert.pdf';
+    
+    $testStmt->bind_param("ssssssssssssss", $testName, $testEmail, $testPhone, $testDob, $testGender, $testAddress, $testState, $testLga, $testSchool, $testQual, $testYear, $testCourse, $testPhoto, $testCert);
+    
+    if ($testStmt->execute()) {
+        $testApplicationId = $conn->insert_id;
+        $testStmt->close();
+        
+        echo "✅ Test application created with ID: $testApplicationId<br>";
+        
+        // Now test payment initialization with the real application ID
+        $paymentProcessor = new PaymentProcessor();
+        $result = $paymentProcessor->initializePayment($testApplicationId, $testEmail, 10230);
+        
+        echo "✅ Payment initialization successful<br>";
+        echo "Reference: " . $result['reference'] . "<br>";
+        echo "Payment URL: " . $result['authorization_url'] . "<br>";
+        
+        // Clean up - delete the test application
+        $cleanupStmt = $conn->prepare("DELETE FROM applications WHERE id = ?");
+        $cleanupStmt->bind_param("i", $testApplicationId);
+        $cleanupStmt->execute();
+        $cleanupStmt->close();
+        
+        echo "✅ Test application cleaned up<br>";
+        
+    } else {
+        echo "❌ Failed to create test application: " . $conn->error . "<br>";
+    }
+    
+    $conn->close();
     
 } catch (Exception $e) {
     echo "❌ Payment initialization failed: " . $e->getMessage() . "<br>";
