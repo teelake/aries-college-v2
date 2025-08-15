@@ -15,11 +15,31 @@ $applicationData = null;
 $transactionData = null;
 
 try {
+    // Debug: Log all URL parameters
+    error_log("Payment Success URL Parameters: " . json_encode($_GET));
+    
     // Get reference from URL parameters (Flutterwave uses tx_ref)
     $reference = $_GET['tx_ref'] ?? $_GET['reference'] ?? $_GET['trxref'] ?? $_SESSION['payment_reference'] ?? null;
     
+            // If we have transaction_id but no reference, try to find the transaction by ID
+        if (!$reference && isset($_GET['transaction_id'])) {
+            $transactionId = $_GET['transaction_id'];
+            error_log("Looking for transaction with ID: $transactionId");
+            
+            // Try to find transaction by gateway_reference using PaymentProcessor
+            $paymentProcessor = new PaymentProcessor();
+            $transaction = $paymentProcessor->getTransactionByGatewayReference($transactionId);
+            
+            if ($transaction) {
+                $reference = $transaction['reference'];
+                error_log("Found reference $reference for transaction ID $transactionId");
+            } else {
+                error_log("No transaction found for ID: $transactionId");
+            }
+        }
+    
     if (!$reference) {
-        throw new Exception('Payment reference not found. Please check the URL parameters.');
+        throw new Exception('Payment reference not found. Please check the URL parameters. Available parameters: ' . json_encode($_GET));
     }
     
     // Verify payment

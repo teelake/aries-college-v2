@@ -621,6 +621,20 @@ class PaymentProcessor {
     }
     
     /**
+     * Get transaction by gateway reference (Flutterwave transaction ID)
+     */
+    public function getTransactionByGatewayReference($gatewayReference) {
+        $stmt = $this->conn->prepare("SELECT * FROM transactions WHERE gateway_reference = ?");
+        $stmt->bind_param("s", $gatewayReference);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $transaction = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $transaction;
+    }
+    
+    /**
      * Get application by ID
      */
     public function getApplicationById($id) {
