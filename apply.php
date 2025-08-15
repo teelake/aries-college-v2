@@ -1,144 +1,5 @@
 <?php
 session_start();
-require_once __DIR__ . '/phpmailer/PHPMailer.php';
-require_once __DIR__ . '/phpmailer/SMTP.php';
-require_once __DIR__ . '/phpmailer/Exception.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-// SMTP settings (FILL THESE IN)
-$smtpHost = 'mail.achtech.org.ng'; // e.g., mail.achtech.org.ng
-$smtpUsername = 'no-reply@achtech.org.ng';
-$smtpPassword = 'Temp_pass123';
-$smtpPort = 465; // 465 for SSL, 587 for TLS
-$smtpFrom = 'no-reply@achtech.org.ng';
-$smtpFromName = 'Aries College';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Database connection (inlined)
-    $DB_HOST = 'localhost';
-    $DB_USER = 'achtecho_user';
-    $DB_PASS = '2fvW!GSO30,Y8{R&';
-    $DB_NAME = 'achtecho_db';
-    $conn = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-    if ($conn->connect_error) die('Connection failed: ' . $conn->connect_error);
-    function clean($data, $conn) {
-        return htmlspecialchars($conn->real_escape_string(trim($data)));
-    }
-    $fullName = clean($_POST['fullName'] ?? '', $conn);
-    $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL) ? clean($_POST['email'], $conn) : '';
-    $phone = clean($_POST['phone'] ?? '', $conn);
-    $dateOfBirth = clean($_POST['dateOfBirth'] ?? '', $conn);
-    $gender = clean($_POST['gender'] ?? '', $conn);
-    $address = clean($_POST['address'] ?? '', $conn);
-    $state = clean($_POST['state'] ?? '', $conn);
-    $lga = clean($_POST['lga'] ?? '', $conn);
-    $lastSchool = clean($_POST['lastSchool'] ?? '', $conn);
-    $qualification = clean($_POST['qualification'] ?? '', $conn);
-    $yearCompleted = clean($_POST['yearCompleted'] ?? '', $conn);
-    $course = clean($_POST['course'] ?? '', $conn);
-    // File uploads (photo, certificate)
-    $photoPath = '';
-    $certificatePath = '';
-    $uploadDir = 'uploads/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $photoExt = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-        $photoPath = $uploadDir . uniqid('photo_') . '.' . $photoExt;
-        move_uploaded_file($_FILES['photo']['tmp_name'], $photoPath);
-    }
-    if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] === UPLOAD_ERR_OK) {
-        $certExt = pathinfo($_FILES['certificate']['name'], PATHINFO_EXTENSION);
-        $certificatePath = $uploadDir . uniqid('cert_') . '.' . $certExt;
-        move_uploaded_file($_FILES['certificate']['tmp_name'], $certificatePath);
-    }
-    if (!$fullName || !$email || !$phone || !$dateOfBirth || !$gender || !$address || !$state || !$lga || !$qualification || !$yearCompleted || !$course || !$photoPath || !$certificatePath) {
-        $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Please fill all required fields and upload required documents.'];
-        header('Location: apply.php');
-        exit;
-    }
-    // Check for duplicate email or phone
-    $dupStmt = $conn->prepare("SELECT id FROM applications WHERE email = ? OR phone = ? LIMIT 1");
-    $dupStmt->bind_param("ss", $email, $phone);
-    $dupStmt->execute();
-    $dupStmt->store_result();
-    if ($dupStmt->num_rows > 0) {
-        $_SESSION['form_message'] = ['type' => 'error', 'text' => 'An application with this email or phone number already exists. Please use a different email or phone.'];
-        $dupStmt->close();
-        $conn->close();
-        header('Location: apply.php');
-        exit;
-    }
-    $dupStmt->close();
-    $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $yearCompleted, $course, $photoPath, $certificatePath);
-    if ($stmt->execute()) {
-        $applicationId = $conn->insert_id;
-        
-        // Initialize payment
-        try {
-            require_once 'payment_processor.php';
-            $paymentProcessor = new PaymentProcessor();
-            $paymentResult = $paymentProcessor->initializePayment($applicationId, $email);
-            
-            // Store payment reference in session
-            $_SESSION['payment_reference'] = $paymentResult['reference'];
-            $_SESSION['application_id'] = $applicationId;
-            
-            // Send email to applicant with payment link
-            $mail = new PHPMailer(true);
-            try {
-                $mail->isSMTP();
-                $mail->Host = $smtpHost;
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtpUsername;
-                $mail->Password = $smtpPassword;
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                $mail->Port = $smtpPort;
-                $mail->setFrom($smtpFrom, $smtpFromName);
-                $mail->addAddress($email, $fullName);
-                $mail->Subject = "Application Received - Payment Required - Aries College";
-                
-                $msg = "Dear $fullName,\n\nYour application has been received successfully!\n\n";
-                $msg .= "Application Summary:\n";
-                $msg .= "Full Name: $fullName\n";
-                $msg .= "Email: $email\n";
-                $msg .= "Phone: $phone\n";
-                $msg .= "Program Applied: $course\n";
-                $msg .= "Application ID: $applicationId\n\n";
-                $msg .= "---\n";
-                $msg .= "PAYMENT REQUIRED\n";
-                $msg .= "Application Fee: ₦10,230 (Ten Thousand Two Hundred and Thirty Naira)\n\n";
-                $msg .= "To complete your application, please click the payment link below:\n";
-                $msg .= $paymentResult['authorization_url'] . "\n\n";
-                $msg .= "Payment Reference: " . $paymentResult['reference'] . "\n\n";
-                $msg .= "If you have any issues with payment, please contact us immediately.\n\n";
-                $msg .= "Thank you for choosing Aries College of Health Management & Technology!\n\n";
-                $msg .= "Best regards,\n";
-                $msg .= "Admissions Team\n";
-                $msg .= "Aries College";
-                
-                $mail->Body = $msg;
-                $mail->send();
-                
-                // Redirect to payment page
-                header('Location: ' . $paymentResult['authorization_url']);
-                exit;
-                
-            } catch (Exception $e) {
-                $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your application was saved, but we could not send the payment email. Please contact support.'];
-            }
-            
-        } catch (Exception $e) {
-            $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your application was saved, but payment initialization failed. Please contact support.'];
-        }
-    } else {
-        $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Error: ' . $conn->error];
-    }
-    $stmt->close();
-    $conn->close();
-    header('Location: apply.php');
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -508,14 +369,19 @@ form.addEventListener('submit', function(e) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             // Show success message
             showClientSuccess(data.message);
             
             // Redirect to payment page after a short delay
             setTimeout(() => {
+                console.log('Redirecting to:', data.data.payment_url);
                 window.location.href = data.data.payment_url;
             }, 2000);
         } else {
@@ -525,6 +391,7 @@ form.addEventListener('submit', function(e) {
         }
     })
     .catch(error => {
+        console.error('Fetch error:', error);
         showClientError('An error occurred. Please try again.');
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;

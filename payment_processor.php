@@ -307,9 +307,236 @@ class PaymentProcessor {
             $mail->Body = $msg;
             $mail->send();
             
+            // Send detailed receipt and application form
+            $this->sendDetailedReceiptAndForm($application);
+            
         } catch (PHPMailerException $e) {
             error_log("Payment confirmation email failed: " . $e->getMessage());
         }
+    }
+    
+    /**
+     * Send detailed receipt and application form
+     */
+    private function sendDetailedReceiptAndForm($application) {
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'mail.achtech.org.ng';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'no-reply@achtech.org.ng';
+            $mail->Password = 'Temp_pass123';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = 465;
+            $mail->setFrom('no-reply@achtech.org.ng', 'Aries College');
+            $mail->addAddress($application['email'], $application['full_name']);
+            
+            $mail->Subject = "Application Receipt & Form - Aries College";
+            $mail->isHTML(true);
+            
+            // Generate HTML receipt and form
+            $htmlContent = $this->generateReceiptAndFormHTML($application);
+            $mail->Body = $htmlContent;
+            $mail->AltBody = $this->generateReceiptAndFormText($application);
+            
+            $mail->send();
+            
+        } catch (PHPMailerException $e) {
+            error_log("Detailed receipt email failed: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Generate HTML receipt and application form
+     */
+    private function generateReceiptAndFormHTML($application) {
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Application Receipt & Form - Aries College</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+                .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+                .logo { width: 120px; height: auto; }
+                .title { color: #2563eb; font-size: 24px; font-weight: bold; margin: 10px 0; }
+                .subtitle { color: #64748b; font-size: 16px; }
+                .section { margin-bottom: 30px; }
+                .section-title { background: #f1f5f9; padding: 10px 15px; font-weight: bold; color: #1e293b; border-left: 4px solid #2563eb; margin-bottom: 15px; }
+                .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+                .receipt-item { padding: 10px; background: #f8fafc; border-radius: 5px; }
+                .receipt-label { font-weight: bold; color: #64748b; font-size: 12px; text-transform: uppercase; }
+                .receipt-value { color: #1e293b; font-size: 14px; margin-top: 5px; }
+                .amount { font-size: 18px; font-weight: bold; color: #059669; }
+                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                .form-group { margin-bottom: 15px; }
+                .form-label { font-weight: bold; color: #374151; font-size: 14px; margin-bottom: 5px; display: block; }
+                .form-value { color: #1f2937; font-size: 14px; padding: 8px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; }
+                .full-width { grid-column: 1 / -1; }
+                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px; }
+                .print-btn { background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+                @media print { 
+                    body { background: white; }
+                    .container { box-shadow: none; }
+                    .print-btn { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="https://achtech.org.ng/img/logo.png" alt="Aries College Logo" class="logo">
+                    <div class="title">Aries College of Health Management & Technology</div>
+                    <div class="subtitle">Application Receipt & Form</div>
+                </div>
+                
+                <!-- Payment Receipt Section -->
+                <div class="section">
+                    <div class="section-title">📄 PAYMENT RECEIPT</div>
+                    <div class="receipt-grid">
+                        <div class="receipt-item">
+                            <div class="receipt-label">Receipt Number</div>
+                            <div class="receipt-value">' . $application['reference'] . '</div>
+                        </div>
+                        <div class="receipt-item">
+                            <div class="receipt-label">Date</div>
+                            <div class="receipt-value">' . date('F j, Y \a\t g:i A') . '</div>
+                        </div>
+                        <div class="receipt-item">
+                            <div class="receipt-label">Amount Paid</div>
+                            <div class="receipt-value amount">₦' . number_format($application['amount']) . '</div>
+                        </div>
+                        <div class="receipt-item">
+                            <div class="receipt-label">Payment Status</div>
+                            <div class="receipt-value" style="color: #059669; font-weight: bold;">✓ PAID</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Application Form Section -->
+                <div class="section">
+                    <div class="section-title">📋 APPLICATION FORM</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Application ID</label>
+                            <div class="form-value">' . $application['id'] . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <div class="form-value">' . htmlspecialchars($application['full_name']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <div class="form-value">' . htmlspecialchars($application['email']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <div class="form-value">' . htmlspecialchars($application['phone']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <div class="form-value">' . date('F j, Y', strtotime($application['date_of_birth'])) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <div class="form-value">' . htmlspecialchars($application['gender']) . '</div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Address</label>
+                            <div class="form-value">' . htmlspecialchars($application['address']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <div class="form-value">' . htmlspecialchars($application['state']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">LGA</label>
+                            <div class="form-value">' . htmlspecialchars($application['lga']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last School Attended</label>
+                            <div class="form-value">' . htmlspecialchars($application['last_school']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Qualification</label>
+                            <div class="form-value">' . htmlspecialchars($application['qualification']) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year Completed</label>
+                            <div class="form-value">' . date('F j, Y', strtotime($application['year_completed'])) . '</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Program Applied</label>
+                            <div class="form-value">' . htmlspecialchars($application['program_applied']) . '</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Important Information -->
+                <div class="section">
+                    <div class="section-title">ℹ️ IMPORTANT INFORMATION</div>
+                    <ul style="color: #374151; line-height: 1.6;">
+                        <li>Keep this receipt and application form for your records</li>
+                        <li>Your application is now under review by our admissions team</li>
+                        <li>You will receive an update within 3-5 business days</li>
+                        <li>Ensure your phone number is active for SMS notifications</li>
+                        <li>For inquiries, contact: admissions@achtech.org.ng</li>
+                    </ul>
+                </div>
+                
+                <div class="footer">
+                    <p>Aries College of Health Management & Technology</p>
+                    <p>Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan</p>
+                    <p>Phone: 08108626169 | Email: info@achtech.org.ng</p>
+                    <p>This is an official document. Please keep it safe.</p>
+                </div>
+                
+                <button onclick="window.print()" class="print-btn">🖨️ Print Receipt & Form</button>
+            </div>
+        </body>
+        </html>';
+        
+        return $html;
+    }
+    
+    /**
+     * Generate text version of receipt and form
+     */
+    private function generateReceiptAndFormText($application) {
+        $text = "ARIES COLLEGE OF HEALTH MANAGEMENT & TECHNOLOGY\n";
+        $text .= "Application Receipt & Form\n\n";
+        
+        $text .= "PAYMENT RECEIPT:\n";
+        $text .= "Receipt Number: " . $application['reference'] . "\n";
+        $text .= "Date: " . date('F j, Y \a\t g:i A') . "\n";
+        $text .= "Amount Paid: ₦" . number_format($application['amount']) . "\n";
+        $text .= "Payment Status: PAID\n\n";
+        
+        $text .= "APPLICATION FORM:\n";
+        $text .= "Application ID: " . $application['id'] . "\n";
+        $text .= "Full Name: " . $application['full_name'] . "\n";
+        $text .= "Email: " . $application['email'] . "\n";
+        $text .= "Phone: " . $application['phone'] . "\n";
+        $text .= "Date of Birth: " . date('F j, Y', strtotime($application['date_of_birth'])) . "\n";
+        $text .= "Gender: " . $application['gender'] . "\n";
+        $text .= "Address: " . $application['address'] . "\n";
+        $text .= "State: " . $application['state'] . "\n";
+        $text .= "LGA: " . $application['lga'] . "\n";
+        $text .= "Last School: " . $application['last_school'] . "\n";
+        $text .= "Qualification: " . $application['qualification'] . "\n";
+        $text .= "Year Completed: " . date('F j, Y', strtotime($application['year_completed'])) . "\n";
+        $text .= "Program Applied: " . $application['program_applied'] . "\n\n";
+        
+        $text .= "IMPORTANT: Keep this receipt and form for your records.\n";
+        $text .= "Your application is under review. You will receive an update within 3-5 business days.\n\n";
+        
+        $text .= "Aries College of Health Management & Technology\n";
+        $text .= "Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan\n";
+        $text .= "Phone: 08108626169 | Email: info@achtech.org.ng";
+        
+        return $text;
     }
     
     /**
