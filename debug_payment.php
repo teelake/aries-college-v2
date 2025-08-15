@@ -38,12 +38,39 @@ try {
 echo "<h2>Test 3: Database Connection</h2>";
 try {
     require_once 'backend/db_connect.php';
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    if ($conn->connect_error) {
-        echo "❌ Database connection failed: " . $conn->connect_error . "<br>";
+    
+    // Check if constants are defined
+    if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASS') || !defined('DB_NAME')) {
+        echo "❌ Database constants not defined<br>";
+        echo "DB_HOST defined: " . (defined('DB_HOST') ? 'Yes' : 'No') . "<br>";
+        echo "DB_USER defined: " . (defined('DB_USER') ? 'Yes' : 'No') . "<br>";
+        echo "DB_PASS defined: " . (defined('DB_PASS') ? 'Yes' : 'No') . "<br>";
+        echo "DB_NAME defined: " . (defined('DB_NAME') ? 'Yes' : 'No') . "<br>";
     } else {
-        echo "✅ Database connection successful<br>";
-        $conn->close();
+        echo "✅ Database constants defined<br>";
+        echo "Host: " . DB_HOST . "<br>";
+        echo "Database: " . DB_NAME . "<br>";
+        echo "User: " . DB_USER . "<br>";
+        
+        $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        if ($conn->connect_error) {
+            echo "❌ Database connection failed: " . $conn->connect_error . "<br>";
+        } else {
+            echo "✅ Database connection successful<br>";
+            
+            // Test if required tables exist
+            $tables = ['applications', 'transactions'];
+            foreach ($tables as $table) {
+                $result = $conn->query("SHOW TABLES LIKE '$table'");
+                if ($result && $result->num_rows > 0) {
+                    echo "✅ Table '$table' exists<br>";
+                } else {
+                    echo "❌ Table '$table' missing<br>";
+                }
+            }
+            
+            $conn->close();
+        }
     }
 } catch (Exception $e) {
     echo "❌ Database error: " . $e->getMessage() . "<br>";
