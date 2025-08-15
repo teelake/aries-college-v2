@@ -72,41 +72,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $yearCompleted, $course, $photoPath, $certificatePath);
     if ($stmt->execute()) {
-        // Send email to applicant with all form details using PHPMailer
-        $mail = new PHPMailer(true);
+        $applicationId = $conn->insert_id;
+        
+        // Initialize payment
         try {
-            $mail->isSMTP();
-            $mail->Host = $smtpHost;
-            $mail->SMTPAuth = true;
-            $mail->Username = $smtpUsername;
-            $mail->Password = $smtpPassword;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port = $smtpPort;
-            $mail->setFrom($smtpFrom, $smtpFromName);
-            $mail->addAddress($email, $fullName);
-            $mail->Subject = "Application Received - Aries College";
-            $msg = "Dear $fullName,\n\nYour application has been received. Here is a summary of your application:\n\n";
-            $msg .= "Full Name: $fullName\n";
-            $msg .= "Email: $email\n";
-            $msg .= "Phone: $phone\n";
-            $msg .= "Date of Birth: $dateOfBirth\n";
-            $msg .= "Gender: $gender\n";
-            $msg .= "Address: $address\n";
-            $msg .= "State: $state\n";
-            $msg .= "LGA: $lga\n";
-            $msg .= "Last School: $lastSchool\n";
-            $msg .= "Qualification: $qualification\n";
-            $msg .= "Year Completed: $yearCompleted\n";
-            $msg .= "Program Applied: $course\n";
-            $msg .= "\n---\n";
-            $msg .= "This is a confirmation of your application.\n";
-            $msg .= "Application Fee: ₦10,000 (Ten Thousand Naira)\n";
-            $msg .= "Payment will be processed through Remita payment gateway.\n";
-            $mail->Body = $msg;
-            $mail->send();
-            $_SESSION['form_message'] = ['type' => 'success', 'text' => 'Application received! We have sent you an acknowledgment email.'];
+            require_once 'payment_processor.php';
+            $paymentProcessor = new PaymentProcessor();
+            $paymentResult = $paymentProcessor->initializePayment($applicationId, $email);
+            
+            // Store payment reference in session
+            $_SESSION['payment_reference'] = $paymentResult['reference'];
+            $_SESSION['application_id'] = $applicationId;
+            
+            // Send email to applicant with payment link
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host = $smtpHost;
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtpUsername;
+                $mail->Password = $smtpPassword;
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                $mail->Port = $smtpPort;
+                $mail->setFrom($smtpFrom, $smtpFromName);
+                $mail->addAddress($email, $fullName);
+                $mail->Subject = "Application Received - Payment Required - Aries College";
+                
+                $msg = "Dear $fullName,\n\nYour application has been received successfully!\n\n";
+                $msg .= "Application Summary:\n";
+                $msg .= "Full Name: $fullName\n";
+                $msg .= "Email: $email\n";
+                $msg .= "Phone: $phone\n";
+                $msg .= "Program Applied: $course\n";
+                $msg .= "Application ID: $applicationId\n\n";
+                $msg .= "---\n";
+                $msg .= "PAYMENT REQUIRED\n";
+                $msg .= "Application Fee: ₦10,000 (Ten Thousand Naira)\n\n";
+                $msg .= "To complete your application, please click the payment link below:\n";
+                $msg .= $paymentResult['authorization_url'] . "\n\n";
+                $msg .= "Payment Reference: " . $paymentResult['reference'] . "\n\n";
+                $msg .= "If you have any issues with payment, please contact us immediately.\n\n";
+                $msg .= "Thank you for choosing Aries College of Health Management & Technology!\n\n";
+                $msg .= "Best regards,\n";
+                $msg .= "Admissions Team\n";
+                $msg .= "Aries College";
+                
+                $mail->Body = $msg;
+                $mail->send();
+                
+                // Redirect to payment page
+                header('Location: ' . $paymentResult['authorization_url']);
+                exit;
+                
+            } catch (Exception $e) {
+                $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your application was saved, but we could not send the payment email. Please contact support.'];
+            }
+            
         } catch (Exception $e) {
-            $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your application was saved, but we could not send an acknowledgment email. Mailer Error: ' . $mail->ErrorInfo];
+            $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Your application was saved, but payment initialization failed. Please contact support.'];
         }
     } else {
         $_SESSION['form_message'] = ['type' => 'error', 'text' => 'Error: ' . $conn->error];
@@ -150,6 +173,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 8px;
         font-weight: 500;
     }
+    .payment-info {
+        margin-bottom: 1.5rem;
+    }
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid;
+        margin-bottom: 1rem;
+    }
+    .alert-info {
+        background: #dbeafe;
+        color: #1e40af;
+        border-left-color: #3b82f6;
+    }
+    .alert i {
+        margin-right: 0.5rem;
+    }
     </style>
 </head>
 <body>
@@ -165,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php unset($_SESSION['form_message']); ?>
             <?php endif; ?>
-            <form id="applicationForm" action="" method="POST" enctype="multipart/form-data">
+            <form id="applicationForm" action="process_application.php" method="POST" enctype="multipart/form-data">
                 <div class="progress-container">
                     <div class="progress-step active">
                         <div class="progress-number">1</div>
@@ -319,9 +359,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="file" id="certificate" name="certificate" accept=".pdf,image/*" required>
                         </div>
                     </div>
+                    <div class="payment-info">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Application Fee:</strong> ₦10,000 (Ten Thousand Naira)
+                            <br>
+                            <small>Your application will only be processed after successful payment.</small>
+                        </div>
+                    </div>
                     <div class="form-navigation">
                         <button type="button" class="btn btn-outline prev-step">Previous</button>
-                        <button type="submit" class="btn btn-primary btn-lg">Submit Application & Pay ₦10,000</button>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-credit-card"></i> Submit Application & Pay ₦10,000
+                        </button>
                     </div>
                 </div>
             </form>
@@ -419,12 +469,14 @@ if (stateSelect && lgaSelect) {
     });
 }
 
-// Client-side validation for file uploads
+// Client-side validation and form submission
 const form = document.querySelector('form');
 const photoInput = document.getElementById('photo');
 const certInput = document.getElementById('certificate');
 
 form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
     // Remove any previous error message
     let oldMsg = document.querySelector('.form-message.error.client');
     if (oldMsg) oldMsg.remove();
@@ -433,16 +485,50 @@ form.addEventListener('submit', function(e) {
     const photo = photoInput.files[0];
     if (!photo || !['image/jpeg','image/png','image/jpg'].includes(photo.type) || photo.size > 2 * 1024 * 1024) {
         showClientError('Passport photo must be JPG or PNG and not more than 2MB.');
-        e.preventDefault();
         return;
     }
+    
     // Validate certificate
     const cert = certInput.files[0];
     if (!cert || !['application/pdf','image/jpeg','image/png','image/jpg'].includes(cert.type) || cert.size > 5 * 1024 * 1024) {
         showClientError('Certificate must be PDF, JPG, or PNG and not more than 5MB.');
-        e.preventDefault();
         return;
     }
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    submitBtn.disabled = true;
+    
+    // Submit form via AJAX
+    const formData = new FormData(form);
+    
+    fetch('process_application.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showClientSuccess(data.message);
+            
+            // Redirect to payment page after a short delay
+            setTimeout(() => {
+                window.location.href = data.data.payment_url;
+            }, 2000);
+        } else {
+            showClientError(data.message);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        showClientError('An error occurred. Please try again.');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 });
 
 function showClientError(msg) {
@@ -451,6 +537,14 @@ function showClientError(msg) {
     errorDiv.className = 'form-message error client';
     errorDiv.textContent = msg;
     container.insertBefore(errorDiv, container.querySelector('form'));
+}
+
+function showClientSuccess(msg) {
+    const container = document.querySelector('.container');
+    const successDiv = document.createElement('div');
+    successDiv.className = 'form-message success client';
+    successDiv.textContent = msg;
+    container.insertBefore(successDiv, container.querySelector('form'));
 }
 </script>
 </body>
