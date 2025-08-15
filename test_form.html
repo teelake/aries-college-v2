@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test - Aries College</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #console { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Form Submission Test</h1>
+    
+    <div class="test-section info">
+        <h3>JavaScript Console Output</h3>
+        <div id="console"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 1: Check if stateLgas is defined</h3>
+        <button onclick="testStateLgas()">Test State/LGA Functionality</button>
+        <div id="stateLgasResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Test Form Submission</h3>
+        <button onclick="testFormSubmission()">Test Form Submission</button>
+        <div id="formResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Test Payment Initialization</h3>
+        <button onclick="testPayment()">Test Payment</button>
+        <div id="paymentResult"></div>
+    </div>
+    
+    <script>
+        // Override console.log to show in our console div
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleDiv = document.getElementById('console');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleDiv.innerHTML += '<div style="color: green;">✓ ' + args.join(' ') + '</div>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            consoleDiv.innerHTML += '<div style="color: red;">✗ ' + args.join(' ') + '</div>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        function testStateLgas() {
+            const resultDiv = document.getElementById('stateLgasResult');
+            try {
+                if (typeof stateLgas !== 'undefined') {
+                    resultDiv.innerHTML = '<div class="success">✅ stateLgas is defined with ' + Object.keys(stateLgas).length + ' states</div>';
+                    console.log('State/LGA test passed');
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ stateLgas is not defined</div>';
+                    console.error('State/LGA test failed');
+                }
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="error">❌ Error: ' + e.message + '</div>';
+                console.error('State/LGA test error:', e);
+            }
+        }
+        
+        function testFormSubmission() {
+            const resultDiv = document.getElementById('formResult');
+            try {
+                // Create a test form data
+                const formData = new FormData();
+                formData.append('fullName', 'Test User');
+                formData.append('email', 'test@example.com');
+                formData.append('phone', '08012345678');
+                formData.append('dateOfBirth', '1990-01-01');
+                formData.append('gender', 'Male');
+                formData.append('address', 'Test Address');
+                formData.append('state', 'Lagos');
+                formData.append('lga', 'Ikeja');
+                formData.append('lastSchool', 'Test School');
+                formData.append('qualification', 'SSCE');
+                formData.append('yearCompleted', '2010-01-01');
+                formData.append('course', 'Medical Laboratory Science');
+                
+                // Test the fetch request
+                fetch('process_application.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        resultDiv.innerHTML = '<div class="success">✅ Form submission successful! Payment URL: ' + data.data.payment_url + '</div>';
+                    } else {
+                        resultDiv.innerHTML = '<div class="error">❌ Form submission failed: ' + data.message + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    resultDiv.innerHTML = '<div class="error">❌ Network error: ' + error.message + '</div>';
+                });
+                
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="error">❌ Error: ' + e.message + '</div>';
+                console.error('Form submission test error:', e);
+            }
+        }
+        
+        function testPayment() {
+            const resultDiv = document.getElementById('paymentResult');
+            try {
+                fetch('test_payment.php')
+                .then(response => response.text())
+                .then(data => {
+                    resultDiv.innerHTML = '<div class="success">✅ Payment test completed. Check the output below:</div><pre>' + data + '</pre>';
+                    console.log('Payment test completed');
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '<div class="error">❌ Payment test failed: ' + error.message + '</div>';
+                    console.error('Payment test error:', error);
+                });
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="error">❌ Error: ' + e.message + '</div>';
+                console.error('Payment test error:', e);
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', function() {
+            console.log('Page loaded, running tests...');
+            setTimeout(testStateLgas, 1000);
+        });
+    </script>
+</body>
+</html>

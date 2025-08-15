@@ -20,6 +20,12 @@ function initNavbar() {
     const navbarToggle = document.querySelector('.navbar-toggle');
     const navbarNav = document.querySelector('.navbar-nav');
     
+    // Check if navbar elements exist before proceeding
+    if (!navbar) {
+        console.log('Navbar not found, skipping navbar initialization');
+        return;
+    }
+    
     // Mobile menu toggle
     if (navbarToggle && navbarNav) {
         navbarToggle.addEventListener('click', function() {
@@ -37,18 +43,20 @@ function initNavbar() {
     
     // Close mobile menu when clicking outside
     document.addEventListener('click', function(e) {
-        if (!navbar.contains(e.target) && navbarNav.classList.contains('active')) {
+        if (navbar && !navbar.contains(e.target) && navbarNav && navbarNav.classList.contains('active')) {
             navbarNav.classList.remove('active');
-            const icon = navbarToggle.querySelector('i');
-            icon.className = 'fas fa-bars';
+            const icon = navbarToggle ? navbarToggle.querySelector('i') : null;
+            if (icon) {
+                icon.className = 'fas fa-bars';
+            }
         }
     });
     
     // Navbar scroll effect
     window.addEventListener('scroll', function() {
-        if (window.scrollY > 50) {
+        if (navbar && window.scrollY > 50) {
             navbar.classList.add('scrolled');
-        } else {
+        } else if (navbar) {
             navbar.classList.remove('scrolled');
         }
     });
@@ -57,23 +65,25 @@ function initNavbar() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('section[id]');
     
-    window.addEventListener('scroll', function() {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (scrollY >= (sectionTop - 200)) {
-                current = section.getAttribute('id');
-            }
+    if (navLinks.length > 0 && sections.length > 0) {
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
         });
-        
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
-        });
-    });
+    }
 }
 
 // Scroll animations
@@ -93,35 +103,39 @@ function initAnimations() {
     
     // Observe elements for animation
     const animateElements = document.querySelectorAll('.programme-card, .mission-card, .vision-card, .announcement-card, .contact-item, .card');
-    animateElements.forEach(el => {
-        el.classList.add('loading');
-        observer.observe(el);
-    });
+    if (animateElements.length > 0) {
+        animateElements.forEach(el => {
+            el.classList.add('loading');
+            observer.observe(el);
+        });
+    }
 }
 
 // FAQ functionality
 function initFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        
-        if (question) {
-            question.addEventListener('click', function() {
-                const isOpen = item.classList.contains('active');
-                
-                // Close all other FAQ items
-                faqItems.forEach(otherItem => {
-                    otherItem.classList.remove('active');
+    if (faqItems.length > 0) {
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            
+            if (question) {
+                question.addEventListener('click', function() {
+                    const isOpen = item.classList.contains('active');
+                    
+                    // Close all other FAQ items
+                    faqItems.forEach(otherItem => {
+                        otherItem.classList.remove('active');
+                    });
+                    
+                    // Toggle current item
+                    if (!isOpen) {
+                        item.classList.add('active');
+                    }
                 });
-                
-                // Toggle current item
-                if (!isOpen) {
-                    item.classList.add('active');
-                }
-            });
-        }
-    });
+            }
+        });
+    }
 }
 
 // Contact form handling

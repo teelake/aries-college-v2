@@ -273,8 +273,9 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
     <script src="js/main.js"></script>
     <script>
-// Nigerian States and LGAs mapping
-const stateLgas = {
+// Nigerian States and LGAs mapping (only if not already declared)
+if (typeof stateLgas === 'undefined') {
+    const stateLgas = {
     "Abia": ["Aba North", "Aba South", "Arochukwu", "Bende", "Ikwuano", "Isiala Ngwa North", "Isiala Ngwa South", "Isuikwuato", "Obi Ngwa", "Ohafia", "Osisioma", "Ugwunagbo", "Ukwa East", "Ukwa West", "Umuahia North", "Umuahia South", "Umu Nneochi"],
     "Adamawa": ["Demsa", "Fufore", "Ganye", "Gayuk", "Gombi", "Grie", "Hong", "Jada", "Lamurde", "Madagali", "Maiha", "Mayo Belwa", "Michika", "Mubi North", "Mubi South", "Numan", "Shelleng", "Song", "Toungo", "Yola North", "Yola South"],
     "Akwa Ibom": ["Abak", "Eastern Obolo", "Eket", "Esit Eket", "Essien Udim", "Etim Ekpo", "Etinan", "Ibeno", "Ibesikpo Asutan", "Ibiono Ibom", "Ika", "Ikono", "Ikot Abasi", "Ikot Ekpene", "Ini", "Itu", "Mbo", "Mkpat Enin", "Nsit Atai", "Nsit Ibom", "Nsit Ubium", "Obot Akara", "Okobo", "Onna", "Oron", "Oruk Anam", "Udung Uko", "Ukanafun", "Uruan", "Urue-Offong/Oruko", "Uyo"],
@@ -312,22 +313,24 @@ const stateLgas = {
     "Yobe": ["Bade", "Bursari", "Damaturu", "Fika", "Fune", "Geidam", "Gujba", "Gulani", "Jakusko", "Karasuwa", "Machina", "Nangere", "Nguru", "Potiskum", "Tarmuwa", "Yunusari", "Yusufari"],
     "Zamfara": ["Anka", "Bakura", "Birnin Magaji/Kiyaw", "Bukkuyum", "Bungudu", "Gummi", "Gusau", "Kaura Namoda", "Maradun", "Maru", "Shinkafi", "Talata Mafara", "Chafe", "Zurmi"],
     "FCT": ["Abaji", "Bwari", "Gwagwalada", "Kuje", "Kwali", "Municipal"],
-};
-const stateSelect = document.getElementById('state');
-const lgaSelect = document.getElementById('lga');
-if (stateSelect && lgaSelect) {
-    stateSelect.addEventListener('change', function() {
-        const state = this.value;
-        lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-        if (stateLgas[state]) {
-            stateLgas[state].forEach(lga => {
-                const option = document.createElement('option');
-                option.value = lga;
-                option.textContent = lga;
-                lgaSelect.appendChild(option);
-            });
-        }
-    });
+    };
+    
+    const stateSelect = document.getElementById('state');
+    const lgaSelect = document.getElementById('lga');
+    if (stateSelect && lgaSelect) {
+        stateSelect.addEventListener('change', function() {
+            const state = this.value;
+            lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+            if (stateLgas[state]) {
+                stateLgas[state].forEach(lga => {
+                    const option = document.createElement('option');
+                    option.value = lga;
+                    option.textContent = lga;
+                    lgaSelect.appendChild(option);
+                });
+            }
+        });
+    }
 }
 
 // Client-side validation and form submission
