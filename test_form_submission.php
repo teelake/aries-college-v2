@@ -18,7 +18,7 @@ $formData = [
     'last_school' => 'Test School',
     'qualification' => 'SSCE',
     'year_completed' => '2010-01-01',
-    'program_applied' => 'Medical Laboratory Science'
+            'program_applied' => 'Medical Laboratory Technician'
 ];
 
 echo "<h2>Testing Form Submission</h2>";

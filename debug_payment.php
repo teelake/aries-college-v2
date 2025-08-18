@@ -138,7 +138,7 @@ try {
     $testSchool = 'Test School';
     $testQual = 'SSCE';
     $testYear = '2010-01-01';
-    $testCourse = 'Medical Laboratory Science';
+            $testCourse = 'Medical Laboratory Technician';
     $testPhoto = 'uploads/passports/test_photo.jpg';
     $testCert = 'uploads/certificates/test_cert.pdf';
     
