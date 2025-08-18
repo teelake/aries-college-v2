@@ -106,7 +106,7 @@ $transactions = $conn->query("SELECT t.*, a.full_name FROM transactions t LEFT J
                 <tr>
                     <th>ID</th>
                     <th>Applicant</th>
-                    <th>Reference</th>
+                    <th>FlutterWave Reference</th>
                     <th>Amount</th>
                     <th>Method</th>
                     <th>Status</th>
@@ -119,7 +119,7 @@ $transactions = $conn->query("SELECT t.*, a.full_name FROM transactions t LEFT J
                 <tr>
                     <td><?php echo $row['id']; ?></td>
                     <td><?php echo htmlspecialchars($row['full_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['payment_reference']); ?></td>
+                    <td><?php echo htmlspecialchars($row['gateway_reference']); ?></td>
                     <td><?php echo number_format($row['amount'], 2); ?></td>
                     <td><?php echo htmlspecialchars($row['payment_method']); ?></td>
                     <td><?php echo ucfirst($row['status']); ?></td>
