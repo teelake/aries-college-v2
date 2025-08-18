@@ -11,9 +11,9 @@ define('PAYSTACK_PUBLIC_KEY', 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 define('PAYSTACK_BASE_URL', 'https://api.paystack.co');
 
 // Flutterwave Configuration
-define('FLUTTERWAVE_SECRET_KEY', 'FLWSECK_TEST-ab26e105e6330a39d5a2a61a695db309-X'); // Your Flutterwave secret key
-define('FLUTTERWAVE_PUBLIC_KEY', 'FLWPUBK_TEST-7a252dcf06f4d1bc6f605a582f1b85b1-X'); // Your Flutterwave public key
-define('FLUTTERWAVE_ENCRYPTION_KEY', 'FLWSECK_TESTaf2b99a9e5a3'); // Your Flutterwave encryption key
+define('FLUTTERWAVE_SECRET_KEY', 'FLWSECK-442f253d8d80e54335c59da9bdf8bcad-198bee280edvt-X'); // Your Flutterwave secret key
+define('FLUTTERWAVE_PUBLIC_KEY', 'FLWPUBK-60bae1e0f12816c9449f4926e5ef460a-X'); // Your Flutterwave public key
+define('FLUTTERWAVE_ENCRYPTION_KEY', '442f253d8d80b48b180d2530'); // Your Flutterwave encryption key
 define('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.com/v3');
 
 // Application Fee Configuration
@@ -30,7 +30,7 @@ define('TRANSACTIONS_TABLE', 'transactions');
 define('APPLICATIONS_TABLE', 'applications');
 
 // Email configuration for payment notifications
-define('PAYMENT_NOTIFICATION_EMAIL', 'finance@achtech.org.ng');
+define('PAYMENT_NOTIFICATION_EMAIL', 'hello@achtech.org.ng');
 define('PAYMENT_NOTIFICATION_NAME', 'Aries College Finance');
 
 // Payment status constants
