@@ -192,19 +192,19 @@ class PaymentProcessor {
         ];
         
         try {
-            $response = $this->makeHttpRequest($url, 'GET', null, $headers);
-            
+        $response = $this->makeHttpRequest($url, 'GET', null, $headers);
+        
             error_log("Flutterwave verification response for $reference: " . json_encode($response));
             
             if ($response['status'] === 'success' && isset($response['data']['status'])) {
                 if ($response['data']['status'] === 'successful') {
-                    return [
-                        'success' => true,
-                        'amount' => $response['data']['amount'],
-                        'reference' => $response['data']['tx_ref'],
-                        'gateway_reference' => $response['data']['id'],
-                        'status' => PAYMENT_STATUS_SUCCESS
-                    ];
+            return [
+                'success' => true,
+                'amount' => $response['data']['amount'],
+                'reference' => $response['data']['tx_ref'],
+                'gateway_reference' => $response['data']['id'],
+                'status' => PAYMENT_STATUS_SUCCESS
+            ];
                 } else {
                     return [
                         'success' => false,
@@ -212,11 +212,11 @@ class PaymentProcessor {
                         'message' => 'Payment status: ' . $response['data']['status']
                     ];
                 }
-            } else {
-                return [
-                    'success' => false,
-                    'status' => PAYMENT_STATUS_FAILED,
-                    'message' => $response['message'] ?? 'Payment verification failed'
+        } else {
+            return [
+                'success' => false,
+                'status' => PAYMENT_STATUS_FAILED,
+                'message' => $response['message'] ?? 'Payment verification failed'
                 ];
             }
         } catch (Exception $e) {
@@ -233,8 +233,15 @@ class PaymentProcessor {
      * Update transaction status
      */
     public function updateTransactionStatus($reference, $status, $gatewayReference = null) {
-        $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
-        $stmt->bind_param("sss", $status, $gatewayReference, $reference);
+        if ($gatewayReference) {
+            // Update both status and gateway_reference
+            $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
+            $stmt->bind_param("sss", $status, $gatewayReference, $reference);
+        } else {
+            // Update only status
+            $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, updated_at = NOW() WHERE reference = ?");
+            $stmt->bind_param("ss", $status, $reference);
+        }
         
         if (!$stmt->execute()) {
             throw new Exception('Failed to update transaction status: ' . $this->conn->error);

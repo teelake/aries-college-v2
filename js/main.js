@@ -3,61 +3,61 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all components with error handling
     try {
-        initNavbar();
+    initNavbar();
     } catch (e) {
         console.log('Navbar initialization skipped:', e.message);
     }
     
     try {
-        initAnimations();
+    initAnimations();
     } catch (e) {
         console.log('Animations initialization skipped:', e.message);
     }
     
     try {
-        initFAQ();
+    initFAQ();
     } catch (e) {
         console.log('FAQ initialization skipped:', e.message);
     }
     
     try {
-        initContactForm();
+    initContactForm();
     } catch (e) {
         console.log('Contact form initialization skipped:', e.message);
     }
     
     try {
-        initApplicationForm();
+    initApplicationForm();
     } catch (e) {
         console.log('Application form initialization skipped:', e.message);
     }
     
     try {
-        initGallery();
+    initGallery();
     } catch (e) {
         console.log('Gallery initialization skipped:', e.message);
     }
     
     try {
-        initSmoothScrolling();
+    initSmoothScrolling();
     } catch (e) {
         console.log('Smooth scrolling initialization skipped:', e.message);
     }
     
     try {
-        initApplicationProgress();
+    initApplicationProgress();
     } catch (e) {
         console.log('Application progress initialization skipped:', e.message);
     }
     
     try {
-        initGalleryFilter();
+    initGalleryFilter();
     } catch (e) {
         console.log('Gallery filter initialization skipped:', e.message);
     }
     
     try {
-        initStateLgaDropdown();
+    initStateLgaDropdown();
     } catch (e) {
         console.log('State/LGA dropdown initialization skipped:', e.message);
     }
@@ -85,14 +85,14 @@ function initNavbar() {
     if (navbarToggle && navbarNav) {
         navbarToggle.addEventListener('click', function() {
             if (navbarNav) {
-                navbarNav.classList.toggle('active');
-                
-                // Change icon
-                const icon = this.querySelector('i');
+            navbarNav.classList.toggle('active');
+            
+            // Change icon
+            const icon = this.querySelector('i');
                 if (icon && navbarNav.classList.contains('active')) {
-                    icon.className = 'fas fa-times';
+                icon.className = 'fas fa-times';
                 } else if (icon) {
-                    icon.className = 'fas fa-bars';
+                icon.className = 'fas fa-bars';
                 }
             }
         });
@@ -104,7 +104,7 @@ function initNavbar() {
             navbarNav.classList.remove('active');
             const icon = navbarToggle ? navbarToggle.querySelector('i') : null;
             if (icon) {
-                icon.className = 'fas fa-bars';
+            icon.className = 'fas fa-bars';
             }
         }
     });
@@ -123,23 +123,23 @@ function initNavbar() {
     const sections = document.querySelectorAll('section[id]');
     
     if (navLinks.length > 0 && sections.length > 0) {
-        window.addEventListener('scroll', function() {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (scrollY >= (sectionTop - 200)) {
-                    current = section.getAttribute('id');
-                }
-            });
-            
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${current}`) {
-                    link.classList.add('active');
-                }
-            });
+    window.addEventListener('scroll', function() {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (scrollY >= (sectionTop - 200)) {
+                current = section.getAttribute('id');
+            }
         });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    });
     }
 }
 
@@ -161,10 +161,10 @@ function initAnimations() {
     // Observe elements for animation
     const animateElements = document.querySelectorAll('.programme-card, .mission-card, .vision-card, .announcement-card, .contact-item, .card');
     if (animateElements.length > 0) {
-        animateElements.forEach(el => {
-            el.classList.add('loading');
-            observer.observe(el);
-        });
+    animateElements.forEach(el => {
+        el.classList.add('loading');
+        observer.observe(el);
+    });
     }
 }
 
@@ -173,25 +173,25 @@ function initFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     
     if (faqItems.length > 0) {
-        faqItems.forEach(item => {
-            const question = item.querySelector('.faq-question');
-            
-            if (question) {
-                question.addEventListener('click', function() {
-                    const isOpen = item.classList.contains('active');
-                    
-                    // Close all other FAQ items
-                    faqItems.forEach(otherItem => {
-                        otherItem.classList.remove('active');
-                    });
-                    
-                    // Toggle current item
-                    if (!isOpen) {
-                        item.classList.add('active');
-                    }
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        
+        if (question) {
+            question.addEventListener('click', function() {
+                const isOpen = item.classList.contains('active');
+                
+                // Close all other FAQ items
+                faqItems.forEach(otherItem => {
+                    otherItem.classList.remove('active');
                 });
-            }
-        });
+                
+                // Toggle current item
+                if (!isOpen) {
+                    item.classList.add('active');
+                }
+            });
+        }
+    });
     }
 }
 

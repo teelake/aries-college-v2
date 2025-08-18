@@ -21,22 +21,42 @@ try {
     // Get reference from URL parameters (Flutterwave uses tx_ref)
     $reference = $_GET['tx_ref'] ?? $_GET['reference'] ?? $_GET['trxref'] ?? $_SESSION['payment_reference'] ?? null;
     
-            // If we have transaction_id but no reference, try to find the transaction by ID
-        if (!$reference && isset($_GET['transaction_id'])) {
-            $transactionId = $_GET['transaction_id'];
-            error_log("Looking for transaction with ID: $transactionId");
+    // If we have transaction_id but no reference, try to find the transaction by ID
+    if (!$reference && isset($_GET['transaction_id'])) {
+        $transactionId = $_GET['transaction_id'];
+        error_log("Looking for transaction with ID: $transactionId");
+        
+        // Try to find transaction by gateway_reference using PaymentProcessor
+        $paymentProcessor = new PaymentProcessor();
+        $transaction = $paymentProcessor->getTransactionByGatewayReference($transactionId);
+        
+        if ($transaction) {
+            $reference = $transaction['reference'];
+            error_log("Found reference $reference for transaction ID $transactionId");
+        } else {
+            error_log("No transaction found for ID: $transactionId");
             
-            // Try to find transaction by gateway_reference using PaymentProcessor
-            $paymentProcessor = new PaymentProcessor();
-            $transaction = $paymentProcessor->getTransactionByGatewayReference($transactionId);
-            
-            if ($transaction) {
-                $reference = $transaction['reference'];
-                error_log("Found reference $reference for transaction ID $transactionId");
-            } else {
-                error_log("No transaction found for ID: $transactionId");
+            // Try alternative lookup methods
+            $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            if (!$conn->connect_error) {
+                // Try looking in the reference column as well
+                $stmt = $conn->prepare("SELECT * FROM transactions WHERE reference = ? OR gateway_reference = ?");
+                $stmt->bind_param("ss", $transactionId, $transactionId);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $altTransaction = $result->fetch_assoc();
+                $stmt->close();
+                
+                if ($altTransaction) {
+                    $reference = $altTransaction['reference'];
+                    error_log("Found reference $reference using alternative lookup for ID $transactionId");
+                } else {
+                    error_log("No transaction found using alternative lookup for ID $transactionId");
+                }
+                $conn->close();
             }
         }
+    }
     
     if (!$reference) {
         throw new Exception('Payment reference not found. Please check the URL parameters. Available parameters: ' . json_encode($_GET));
@@ -66,6 +86,7 @@ try {
         // Send confirmation email
         if ($applicationData) {
             sendPaymentConfirmationEmail($applicationData, $transactionData);
+            sendApplicationConfirmationEmail($applicationData, $transactionData);
         }
         
     } else {
@@ -117,6 +138,52 @@ function sendPaymentConfirmationEmail($application, $transaction) {
     } catch (PHPMailerException $e) {
         // Log email error but don't fail the payment process
         error_log("Payment confirmation email failed: " . $e->getMessage());
+    }
+}
+
+function sendApplicationConfirmationEmail($application, $transaction) {
+    
+    $mail = new PHPMailer(true);
+    
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'mail.achtech.org.ng';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'no-reply@achtech.org.ng';
+        $mail->Password = 'Temp_pass123';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = 465;
+        $mail->setFrom('no-reply@achtech.org.ng', 'Aries College');
+        $mail->addAddress($application['email'], $application['full_name']);
+        
+        $mail->Subject = "Application Confirmed - Aries College";
+        
+        $msg = "Dear {$application['full_name']},\n\n";
+        $msg .= "Your application has been confirmed and is now being processed!\n\n";
+        $msg .= "Application Summary:\n";
+        $msg .= "Full Name: {$application['full_name']}\n";
+        $msg .= "Email: {$application['email']}\n";
+        $msg .= "Phone: {$application['phone']}\n";
+        $msg .= "Program Applied: {$application['program_applied']}\n";
+        $msg .= "Application ID: {$application['id']}\n\n";
+        $msg .= "Payment Details:\n";
+        $msg .= "Reference: {$transaction['reference']}\n";
+        $msg .= "Amount: ₦" . number_format($transaction['amount'], 2) . "\n";
+        $msg .= "Date: " . date('F j, Y g:i A', strtotime($transaction['updated_at'])) . "\n";
+        $msg .= "Status: Successful\n\n";
+        $msg .= "Your application is now complete and will be reviewed by our admissions team.\n";
+        $msg .= "You will receive further updates via email regarding your application status.\n\n";
+        $msg .= "Thank you for choosing Aries College of Health Management & Technology!\n\n";
+        $msg .= "Best regards,\n";
+        $msg .= "Admissions Team\n";
+        $msg .= "Aries College";
+        
+        $mail->Body = $msg;
+        $mail->send();
+        
+    } catch (PHPMailerException $e) {
+        // Log email error but don't fail the payment process
+        error_log("Application confirmation email failed: " . $e->getMessage());
     }
 }
 ?>

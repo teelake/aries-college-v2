@@ -2,12 +2,6 @@
 session_start();
 require_once 'backend/db_connect.php';
 require_once 'payment_processor.php';
-require_once 'phpmailer/PHPMailer.php';
-require_once 'phpmailer/SMTP.php';
-require_once 'phpmailer/Exception.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 header('Content-Type: application/json');
 
@@ -101,8 +95,8 @@ try {
     
     // Initialize payment
     try {
-        $paymentProcessor = new PaymentProcessor();
-        $paymentResult = $paymentProcessor->initializePayment($applicationId, $email);
+    $paymentProcessor = new PaymentProcessor();
+    $paymentResult = $paymentProcessor->initializePayment($applicationId, $email);
         
         if (!$paymentResult || !isset($paymentResult['authorization_url'])) {
             throw new Exception('Payment initialization failed: No payment URL received');
@@ -117,50 +111,7 @@ try {
     $_SESSION['payment_reference'] = $paymentResult['reference'];
     $_SESSION['application_id'] = $applicationId;
     
-    // Send confirmation email with payment link
-    $mail = new PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->Host = 'mail.achtech.org.ng';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'no-reply@achtech.org.ng';
-        $mail->Password = 'Temp_pass123';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 465;
-        $mail->setFrom('no-reply@achtech.org.ng', 'Aries College');
-        $mail->addAddress($email, $fullName);
-        
-        $mail->Subject = "Application Received - Payment Required - Aries College";
-        
-        $msg = "Dear $fullName,\n\nYour application has been received successfully!\n\n";
-        $msg .= "Application Summary:\n";
-        $msg .= "Full Name: $fullName\n";
-        $msg .= "Email: $email\n";
-        $msg .= "Phone: $phone\n";
-        $msg .= "Program Applied: $course\n";
-        $msg .= "Application ID: $applicationId\n\n";
-        $msg .= "---\n";
-        $msg .= "PAYMENT REQUIRED\n";
-        $msg .= "Application Fee: ₦10,230 (Ten Thousand Two Hundred and Thirty Naira)\n\n";
-        $msg .= "To complete your application, please click the payment link below:\n";
-        $msg .= $paymentResult['authorization_url'] . "\n\n";
-        $msg .= "Payment Reference: " . $paymentResult['reference'] . "\n\n";
-        $msg .= "IMPORTANT: Your application will only be processed after successful payment.\n";
-        $msg .= "If you have any issues with payment, please contact us immediately.\n\n";
-        $msg .= "Thank you for choosing Aries College of Health Management & Technology!\n\n";
-        $msg .= "Best regards,\n";
-        $msg .= "Admissions Team\n";
-        $msg .= "Aries College";
-        
-        $mail->Body = $msg;
-        $mail->send();
-        
-    } catch (PHPMailerException $e) {
-        // Log email error but don't fail the process
-        error_log("Application confirmation email failed: " . $e->getMessage());
-    }
-    
-    // Return success response
+    // Return success response immediately for faster redirection
     echo json_encode([
         'success' => true,
         'message' => 'Application submitted successfully! Please complete payment to finalize your application.',
