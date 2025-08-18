@@ -25,8 +25,8 @@ if ($search) {
     $search_sql = $conn->real_escape_string($search);
     $where[] = "(full_name LIKE '%$search_sql%' OR email LIKE '%$search_sql%' OR program_applied LIKE '%$search_sql%')";
 }
-if ($status && in_array($status, ['pending','admitted','not_admitted'])) {
-    $where[] = "status = '".$conn->real_escape_string($status)."'";
+if ($status && in_array($status, ['submitted','approved','rejected'])) {
+    $where[] = "application_status = '".$conn->real_escape_string($status)."'";
 }
 $where_sql = $where ? ('WHERE '.implode(' AND ', $where)) : '';
 $totalRows = $conn->query("SELECT COUNT(*) FROM applications $where_sql")->fetch_row()[0];
@@ -74,9 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .table th, .table td { border: 1px solid #e5e7eb; padding: 0.7rem; text-align: left; }
         .table th { background: #f1f5f9; }
         .actions a { margin-right: 0.5rem; }
-        .status-pending { color: #f59e42; font-weight: bold; }
-        .status-admitted { color: #16a34a; font-weight: bold; }
-        .status-not_admitted { color: #dc2626; font-weight: bold; }
+        .status-submitted { color: #f59e42; font-weight: bold; }
+        .status-approved { color: #16a34a; font-weight: bold; }
+        .status-rejected { color: #dc2626; font-weight: bold; }
         .pagination { margin: 2rem 0; text-align: center; }
         .pagination a, .pagination span { display: inline-block; margin: 0 4px; padding: 6px 12px; border-radius: 4px; background: #f1f5f9; color: #1e3a8a; text-decoration: none; }
         .pagination .active { background: #1e3a8a; color: #fff; font-weight: bold; }
@@ -116,13 +116,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
         <h2>Applicants</h2>
+        
+        <?php if (isset($_SESSION['admin_message'])): ?>
+            <div class="alert alert-<?php echo $_SESSION['admin_message']['type']; ?>" style="
+                padding: 1rem;
+                margin-bottom: 1rem;
+                border-radius: 6px;
+                background: <?php echo $_SESSION['admin_message']['type'] === 'success' ? '#d1fae5' : '#fee2e2'; ?>;
+                color: <?php echo $_SESSION['admin_message']['type'] === 'success' ? '#065f46' : '#991b1b'; ?>;
+                border: 1px solid <?php echo $_SESSION['admin_message']['type'] === 'success' ? '#a7f3d0' : '#fecaca'; ?>;
+            ">
+                <?php echo htmlspecialchars($_SESSION['admin_message']['text']); ?>
+            </div>
+            <?php unset($_SESSION['admin_message']); ?>
+        <?php endif; ?>
+        
         <form class="table-controls" method="get" action="">
             <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Search name, email, program...">
             <select name="status">
                 <option value="">All Status</option>
-                <option value="pending" <?php if($status==='pending') echo 'selected'; ?>>Pending</option>
-                <option value="admitted" <?php if($status==='admitted') echo 'selected'; ?>>Admitted</option>
-                <option value="not_admitted" <?php if($status==='not_admitted') echo 'selected'; ?>>Not Admitted</option>
+                <option value="submitted" <?php if($status==='submitted') echo 'selected'; ?>>Submitted</option>
+                <option value="approved" <?php if($status==='approved') echo 'selected'; ?>>Approved</option>
+                <option value="rejected" <?php if($status==='rejected') echo 'selected'; ?>>Rejected</option>
             </select>
             <select name="per_page">
                 <option value="10" <?php if($perPage==10) echo 'selected'; ?>>10</option>
@@ -151,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td><?php echo htmlspecialchars($row['full_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['email']); ?></td>
                     <td><?php echo htmlspecialchars($row['program_applied']); ?></td>
-                    <td class="status-<?php echo $row['status']; ?>"><?php echo ucfirst($row['status']); ?></td>
+                    <td class="status-<?php echo $row['application_status']; ?>"><?php echo ucfirst($row['application_status']); ?></td>
                     <td><?php echo $row['submitted_at']; ?></td>
                     <td class="actions">
                         <a href="view_applicant.php?id=<?php echo $row['id']; ?>">View</a>

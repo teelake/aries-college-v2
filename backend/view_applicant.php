@@ -90,7 +90,7 @@ if (!$app) die('Applicant not found.');
                 <dt>Last School</dt><dd><?php echo htmlspecialchars($app['last_school']); ?></dd>
                 <dt>Qualification</dt><dd><?php echo htmlspecialchars($app['qualification']); ?></dd>
                 <dt>Year Completed</dt><dd><?php echo htmlspecialchars($app['year_completed']); ?></dd>
-                <dt>Status</dt><dd><?php echo ucfirst($app['status']); ?></dd>
+                <dt>Status</dt><dd><?php echo ucfirst($app['application_status']); ?></dd>
                 <dt>Submitted</dt><dd><?php echo $app['submitted_at']; ?></dd>
                 <dt>Certificate</dt><dd><?php if($app['certificate_path']) echo '<a class="doc-link" href="../'.htmlspecialchars($app['certificate_path']).'" target="_blank">View Certificate</a>'; ?></dd>
             </dl>
