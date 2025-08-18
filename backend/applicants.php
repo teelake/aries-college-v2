@@ -25,13 +25,13 @@ if ($search) {
     $search_sql = $conn->real_escape_string($search);
     $where[] = "(full_name LIKE '%$search_sql%' OR email LIKE '%$search_sql%' OR program_applied LIKE '%$search_sql%')";
 }
-if ($status && in_array($status, ['submitted','approved','rejected'])) {
+if ($status && in_array($status, ['pending_payment','submitted','under_review','admitted','not_admitted'])) {
     $where[] = "application_status = '".$conn->real_escape_string($status)."'";
 }
 $where_sql = $where ? ('WHERE '.implode(' AND ', $where)) : '';
 $totalRows = $conn->query("SELECT COUNT(*) FROM applications $where_sql")->fetch_row()[0];
 $totalPages = ceil($totalRows / $perPage);
-$applicants = $conn->query("SELECT * FROM applications $where_sql ORDER BY submitted_at DESC LIMIT $perPage OFFSET $offset");
+$applicants = $conn->query("SELECT * FROM applications $where_sql ORDER BY created_at DESC LIMIT $perPage OFFSET $offset");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -74,9 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .table th, .table td { border: 1px solid #e5e7eb; padding: 0.7rem; text-align: left; }
         .table th { background: #f1f5f9; }
         .actions a { margin-right: 0.5rem; }
+        .status-pending_payment { color: #6b7280; font-weight: bold; }
         .status-submitted { color: #f59e42; font-weight: bold; }
-        .status-approved { color: #16a34a; font-weight: bold; }
-        .status-rejected { color: #dc2626; font-weight: bold; }
+        .status-under_review { color: #3b82f6; font-weight: bold; }
+        .status-admitted { color: #16a34a; font-weight: bold; }
+        .status-not_admitted { color: #dc2626; font-weight: bold; }
         .pagination { margin: 2rem 0; text-align: center; }
         .pagination a, .pagination span { display: inline-block; margin: 0 4px; padding: 6px 12px; border-radius: 4px; background: #f1f5f9; color: #1e3a8a; text-decoration: none; }
         .pagination .active { background: #1e3a8a; color: #fff; font-weight: bold; }
@@ -135,9 +137,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Search name, email, program...">
             <select name="status">
                 <option value="">All Status</option>
+                <option value="pending_payment" <?php if($status==='pending_payment') echo 'selected'; ?>>Pending Payment</option>
                 <option value="submitted" <?php if($status==='submitted') echo 'selected'; ?>>Submitted</option>
-                <option value="approved" <?php if($status==='approved') echo 'selected'; ?>>Approved</option>
-                <option value="rejected" <?php if($status==='rejected') echo 'selected'; ?>>Rejected</option>
+                <option value="under_review" <?php if($status==='under_review') echo 'selected'; ?>>Under Review</option>
+                <option value="admitted" <?php if($status==='admitted') echo 'selected'; ?>>Admitted</option>
+                <option value="not_admitted" <?php if($status==='not_admitted') echo 'selected'; ?>>Not Admitted</option>
             </select>
             <select name="per_page">
                 <option value="10" <?php if($perPage==10) echo 'selected'; ?>>10</option>
@@ -155,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <th>Program</th>
                     <th>Email</th>
                     <th>Status</th>
-                    <th>Submitted</th>
+                    <th>Created</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -166,8 +170,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td><?php echo htmlspecialchars($row['full_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['program_applied']); ?></td>
                     <td><?php echo htmlspecialchars($row['email']); ?></td>
-                    <td class="status-<?php echo $row['application_status']; ?>"><?php echo ucfirst($row['application_status']); ?></td>
-                    <td><?php echo $row['submitted_at']; ?></td>
+                    <td class="status-<?php echo $row['application_status']; ?>">
+                        <?php 
+                        $statusLabels = [
+                            'pending_payment' => 'Pending Payment',
+                            'submitted' => 'Submitted',
+                            'under_review' => 'Under Review',
+                            'admitted' => 'Admitted',
+                            'not_admitted' => 'Not Admitted'
+                        ];
+                        echo $statusLabels[$row['application_status']] ?? ucfirst($row['application_status']);
+                        ?>
+                    </td>
+                    <td><?php echo $row['created_at']; ?></td>
                     <td class="actions">
                         <a href="view_applicant.php?id=<?php echo $row['id']; ?>">View</a>
                         <a href="admit_applicant.php?id=<?php echo $row['id']; ?>">Admit</a>
