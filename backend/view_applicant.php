@@ -78,8 +78,9 @@ if (!$app) die('Applicant not found.');
             <?php if($app['photo_path']): ?>
                 <img src="../<?php echo htmlspecialchars($app['photo_path']); ?>" alt="Passport Photo" style="position:absolute;top:2rem;right:2rem;width:100px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);background:#f8fafc;">
             <?php endif; ?>
-            <h3><?php echo htmlspecialchars($app['full_name']); ?> (<?php echo htmlspecialchars($app['program_applied']); ?>)</h3>
+            <h3><?php echo htmlspecialchars($app['full_name']); ?></h3>
             <dl class="applicant-details">
+                <dt>Program Applied</dt><dd><?php echo htmlspecialchars($app['program_applied']); ?></dd>
                 <dt>Email</dt><dd><?php echo htmlspecialchars($app['email']); ?></dd>
                 <dt>Phone</dt><dd><?php echo htmlspecialchars($app['phone']); ?></dd>
                 <dt>Date of Birth</dt><dd><?php echo htmlspecialchars($app['date_of_birth']); ?></dd>

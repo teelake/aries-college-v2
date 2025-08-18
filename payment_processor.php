@@ -202,11 +202,11 @@ class PaymentProcessor {
                 $successfulStatuses = ['successful', 'completed', 'success', 'paid'];
                 
                 if (in_array(strtolower($paymentStatus), $successfulStatuses)) {
-                    return [
-                        'success' => true,
-                        'amount' => $response['data']['amount'],
-                        'reference' => $response['data']['tx_ref'],
-                        'gateway_reference' => $response['data']['id'],
+            return [
+                'success' => true,
+                'amount' => $response['data']['amount'],
+                'reference' => $response['data']['tx_ref'],
+                'gateway_reference' => $response['data']['id'],
                         'status' => PAYMENT_STATUS_SUCCESS,
                         'payment_method' => $response['data']['payment_type'] ?? 'unknown'
                     ];
@@ -244,8 +244,8 @@ class PaymentProcessor {
             $stmt->bind_param("ssss", $status, $gatewayReference, $paymentMethod, $reference);
         } elseif ($gatewayReference) {
             // Update both status and gateway_reference
-            $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
-            $stmt->bind_param("sss", $status, $gatewayReference, $reference);
+        $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
+        $stmt->bind_param("sss", $status, $gatewayReference, $reference);
         } else {
             // Update only status
             $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, updated_at = NOW() WHERE reference = ?");

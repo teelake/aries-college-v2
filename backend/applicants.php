@@ -152,8 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Email</th>
                     <th>Program</th>
+                    <th>Email</th>
                     <th>Status</th>
                     <th>Submitted</th>
                     <th>Actions</th>
@@ -164,8 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <tr>
                     <td><?php echo $row['id']; ?></td>
                     <td><?php echo htmlspecialchars($row['full_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['email']); ?></td>
                     <td><?php echo htmlspecialchars($row['program_applied']); ?></td>
+                    <td><?php echo htmlspecialchars($row['email']); ?></td>
                     <td class="status-<?php echo $row['application_status']; ?>"><?php echo ucfirst($row['application_status']); ?></td>
                     <td><?php echo $row['submitted_at']; ?></td>
                     <td class="actions">
