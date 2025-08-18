@@ -22,7 +22,9 @@ try {
             
             // Update transaction status to failed if not already
             if ($transactionData['status'] === 'pending') {
-                $paymentProcessor->updateTransactionStatus($reference, 'failed');
+                // Get payment method from URL parameters or default to 'Card Payment'
+                $paymentMethod = $_GET['payment_type'] ?? 'Card Payment';
+                $paymentProcessor->updateTransactionStatus($reference, 'failed', null, $paymentMethod);
             }
         }
     }

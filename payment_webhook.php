@@ -62,8 +62,11 @@ try {
         $newStatus = PAYMENT_STATUS_CANCELLED;
     }
     
+    // Get payment method from webhook data
+    $paymentMethod = $data['data']['payment_type'] ?? 'Card Payment';
+    
     // Update transaction in database
-    $paymentProcessor->updateTransactionStatus($txRef, $newStatus, $transactionId);
+    $paymentProcessor->updateTransactionStatus($txRef, $newStatus, $transactionId, $paymentMethod);
     
     // If payment is successful, send confirmation email and receipt
     if ($newStatus === PAYMENT_STATUS_SUCCESS) {

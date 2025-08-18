@@ -22,7 +22,7 @@ $search = trim($_GET['search'] ?? '');
 $where = [];
 if ($search) {
     $search_sql = $conn->real_escape_string($search);
-    $where[] = "(a.full_name LIKE '%$search_sql%' OR t.payment_reference LIKE '%$search_sql%' OR t.payment_method LIKE '%$search_sql%')";
+    $where[] = "(a.full_name LIKE '%$search_sql%' OR t.reference LIKE '%$search_sql%' OR t.payment_method LIKE '%$search_sql%')";
 }
 $where_sql = $where ? ('WHERE '.implode(' AND ', $where)) : '';
 $totalRows = $conn->query("SELECT COUNT(*) FROM transactions t LEFT JOIN applications a ON t.application_id = a.id $where_sql")->fetch_row()[0];

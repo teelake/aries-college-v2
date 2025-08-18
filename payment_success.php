@@ -98,8 +98,11 @@ try {
         if ($transactionData) {
             error_log("Transaction found in database: " . json_encode($transactionData));
             
+            // Get payment method from URL parameters or default to 'Card Payment'
+            $paymentMethod = $_GET['payment_type'] ?? 'Card Payment';
+            
             // Update transaction status to success
-            $paymentProcessor->updateTransactionStatus($reference, PAYMENT_STATUS_SUCCESS, $_GET['transaction_id'] ?? null, $_GET['payment_type'] ?? null);
+            $paymentProcessor->updateTransactionStatus($reference, PAYMENT_STATUS_SUCCESS, $_GET['transaction_id'] ?? null, $paymentMethod);
             
             $paymentStatus = 'success';
             $paymentMessage = 'Payment completed successfully!';
