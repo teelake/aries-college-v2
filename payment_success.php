@@ -93,7 +93,7 @@ try {
             error_log("Transaction found in database: " . json_encode($transactionData));
             
             // Update transaction status to success
-            $paymentProcessor->updateTransactionStatus($reference, 'successful', $_GET['transaction_id'] ?? null);
+            $paymentProcessor->updateTransactionStatus($reference, PAYMENT_STATUS_SUCCESS, $_GET['transaction_id'] ?? null, $_GET['payment_type'] ?? null);
             
             $paymentStatus = 'success';
             $paymentMessage = 'Payment completed successfully!';
@@ -117,7 +117,8 @@ try {
         $paymentProcessor->updateTransactionStatus(
             $reference, 
             $verificationResult['status'], 
-            $verificationResult['gateway_reference']
+            $verificationResult['gateway_reference'],
+            $verificationResult['payment_method'] ?? null
         );
         
         $paymentStatus = 'success';

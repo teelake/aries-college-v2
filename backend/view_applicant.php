@@ -76,7 +76,7 @@ if (!$app) die('Applicant not found.');
         </div>
         <div class="applicant-card" style="position:relative;">
             <?php if($app['photo_path']): ?>
-                <img src="<?php echo htmlspecialchars($app['photo_path']); ?>" alt="Passport Photo" style="position:absolute;top:2rem;right:2rem;width:100px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);background:#f8fafc;">
+                <img src="../<?php echo htmlspecialchars($app['photo_path']); ?>" alt="Passport Photo" style="position:absolute;top:2rem;right:2rem;width:100px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);background:#f8fafc;">
             <?php endif; ?>
             <h3><?php echo htmlspecialchars($app['full_name']); ?> (<?php echo htmlspecialchars($app['program_applied']); ?>)</h3>
             <dl class="applicant-details">
@@ -92,7 +92,7 @@ if (!$app) die('Applicant not found.');
                 <dt>Year Completed</dt><dd><?php echo htmlspecialchars($app['year_completed']); ?></dd>
                 <dt>Status</dt><dd><?php echo ucfirst($app['status']); ?></dd>
                 <dt>Submitted</dt><dd><?php echo $app['submitted_at']; ?></dd>
-                <dt>Certificate</dt><dd><?php if($app['certificate_path']) echo '<a class="doc-link" href="'.htmlspecialchars($app['certificate_path']).'" target="_blank">View Certificate</a>'; ?></dd>
+                <dt>Certificate</dt><dd><?php if($app['certificate_path']) echo '<a class="doc-link" href="../'.htmlspecialchars($app['certificate_path']).'" target="_blank">View Certificate</a>'; ?></dd>
             </dl>
         </div>
     </div>

@@ -197,19 +197,24 @@ class PaymentProcessor {
             error_log("Flutterwave verification response for $reference: " . json_encode($response));
             
             if ($response['status'] === 'success' && isset($response['data']['status'])) {
-                if ($response['data']['status'] === 'successful') {
-            return [
-                'success' => true,
-                'amount' => $response['data']['amount'],
-                'reference' => $response['data']['tx_ref'],
-                'gateway_reference' => $response['data']['id'],
-                'status' => PAYMENT_STATUS_SUCCESS
-            ];
+                // Handle different payment method statuses
+                $paymentStatus = $response['data']['status'];
+                $successfulStatuses = ['successful', 'completed', 'success', 'paid'];
+                
+                if (in_array(strtolower($paymentStatus), $successfulStatuses)) {
+                    return [
+                        'success' => true,
+                        'amount' => $response['data']['amount'],
+                        'reference' => $response['data']['tx_ref'],
+                        'gateway_reference' => $response['data']['id'],
+                        'status' => PAYMENT_STATUS_SUCCESS,
+                        'payment_method' => $response['data']['payment_type'] ?? 'unknown'
+                    ];
                 } else {
                     return [
                         'success' => false,
                         'status' => PAYMENT_STATUS_FAILED,
-                        'message' => 'Payment status: ' . $response['data']['status']
+                        'message' => 'Payment status: ' . $paymentStatus
                     ];
                 }
         } else {
@@ -232,8 +237,12 @@ class PaymentProcessor {
     /**
      * Update transaction status
      */
-    public function updateTransactionStatus($reference, $status, $gatewayReference = null) {
-        if ($gatewayReference) {
+    public function updateTransactionStatus($reference, $status, $gatewayReference = null, $paymentMethod = null) {
+        if ($gatewayReference && $paymentMethod) {
+            // Update status, gateway_reference, and payment_method
+            $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, payment_method = ?, updated_at = NOW() WHERE reference = ?");
+            $stmt->bind_param("ssss", $status, $gatewayReference, $paymentMethod, $reference);
+        } elseif ($gatewayReference) {
             // Update both status and gateway_reference
             $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
             $stmt->bind_param("sss", $status, $gatewayReference, $reference);
