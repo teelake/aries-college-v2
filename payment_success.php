@@ -84,10 +84,14 @@ try {
     // Check if verification failed but we have status in URL
     if (!$verificationResult['success'] && isset($_GET['status']) && $_GET['status'] === 'successful') {
         error_log("Flutterwave verification failed but URL status is successful. Proceeding with payment success.");
+        error_log("Verification result: " . json_encode($verificationResult));
+        error_log("URL parameters: " . json_encode($_GET));
         
         // Get transaction data directly from database
         $transactionData = $paymentProcessor->getTransactionByReference($reference);
         if ($transactionData) {
+            error_log("Transaction found in database: " . json_encode($transactionData));
+            
             // Update transaction status to success
             $paymentProcessor->updateTransactionStatus($reference, 'successful', $_GET['transaction_id'] ?? null);
             
@@ -103,6 +107,7 @@ try {
                 sendApplicationConfirmationEmail($applicationData, $transactionData);
             }
         } else {
+            error_log("Transaction not found in database for reference: $reference");
             $paymentStatus = 'error';
             $paymentMessage = 'Transaction not found in database';
         }

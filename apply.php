@@ -388,14 +388,12 @@ form.addEventListener('submit', function(e) {
                         sessionStorage.setItem('payment_reference', data.data.reference);
                     }
                     
-                    // Redirect to payment after a short delay
-                    setTimeout(() => {
-                        if (data.data && data.data.payment_url) {
-                            window.location.href = data.data.payment_url;
-                        } else {
-                            showMessage('Payment URL not received. Please try again.', 'error');
-                        }
-                    }, 1500); // 1.5 second delay to show success message
+                    // Redirect to payment immediately
+                    if (data.data && data.data.payment_url) {
+                        window.location.href = data.data.payment_url;
+                    } else {
+                        showMessage('Payment URL not received. Please try again.', 'error');
+                    }
                 } else {
                     showMessage(data.message || 'An error occurred. Please try again.', 'error');
                 }
