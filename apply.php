@@ -380,25 +380,25 @@ form.addEventListener('submit', function(e) {
     .then(data => {
         console.log('Response data:', data);
         if (data.success) {
-            // Show success message
-            showClientSuccess(data.message);
-            
-            // Redirect to payment page after a short delay
-            setTimeout(() => {
-                console.log('Redirecting to:', data.data.payment_url);
-                window.location.href = data.data.payment_url;
-            }, 2000);
-        } else {
-            console.error('Server error:', data);
-            let errorMessage = data.message || 'An error occurred. Please try again.';
-            if (data.debug_info) {
-                console.error('Debug info:', data.debug_info);
-                errorMessage += ' (Check console for details)';
-            }
-            showClientError(errorMessage);
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
+                    // Show success message immediately
+                    showMessage('Application submitted successfully! Redirecting to payment...', 'success');
+                    
+                    // Store payment reference for later use
+                    if (data.data && data.data.reference) {
+                        sessionStorage.setItem('payment_reference', data.data.reference);
+                    }
+                    
+                    // Redirect to payment after a short delay
+                    setTimeout(() => {
+                        if (data.data && data.data.payment_url) {
+                            window.location.href = data.data.payment_url;
+                        } else {
+                            showMessage('Payment URL not received. Please try again.', 'error');
+                        }
+                    }, 1500); // 1.5 second delay to show success message
+                } else {
+                    showMessage(data.message || 'An error occurred. Please try again.', 'error');
+                }
     })
     .catch(error => {
         console.error('Fetch error:', error);
@@ -408,21 +408,57 @@ form.addEventListener('submit', function(e) {
     });
 });
 
-function showClientError(msg) {
-    const container = document.querySelector('.container');
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'form-message error client';
-    errorDiv.textContent = msg;
-    container.insertBefore(errorDiv, container.querySelector('form'));
+function showClientError(message) {
+    const errorDiv = document.getElementById('error-message');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        errorDiv.scrollIntoView({ behavior: 'smooth' });
+    }
 }
-
-function showClientSuccess(msg) {
-    const container = document.querySelector('.container');
-    const successDiv = document.createElement('div');
-    successDiv.className = 'form-message success client';
-    successDiv.textContent = msg;
-    container.insertBefore(successDiv, container.querySelector('form'));
-}
+    
+    function showMessage(message, type = 'info') {
+        // Remove any existing message
+        const existingMessage = document.querySelector('.alert-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Create new message element
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `alert alert-${type} alert-message`;
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        
+        // Set background color based on type
+        if (type === 'success') {
+            messageDiv.style.backgroundColor = '#10b981';
+        } else if (type === 'error') {
+            messageDiv.style.backgroundColor = '#ef4444';
+        } else {
+            messageDiv.style.backgroundColor = '#3b82f6';
+        }
+        
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 5000);
+    }
 </script>
 </body>
 </html> 
