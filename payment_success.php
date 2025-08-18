@@ -81,9 +81,15 @@ try {
     $paymentProcessor = new PaymentProcessor();
     $verificationResult = $paymentProcessor->verifyPayment($reference);
     
-    // Check if verification failed but we have status in URL
-    if (!$verificationResult['success'] && isset($_GET['status']) && $_GET['status'] === 'successful') {
-        error_log("Flutterwave verification failed but URL status is successful. Proceeding with payment success.");
+    // Define success indicators for different payment methods
+    $successIndicators = ['successful', 'success', 'completed', 'paid', 'approved'];
+    $urlStatus = $_GET['status'] ?? $_POST['status'] ?? '';
+    $isUrlStatusSuccessful = in_array(strtolower($urlStatus), $successIndicators);
+    
+    // Check if verification failed but we have successful status in URL
+    if (!$verificationResult['success'] && $isUrlStatusSuccessful) {
+        error_log("Flutterwave verification failed but URL status indicates success. Proceeding with payment success.");
+        error_log("URL status: $urlStatus");
         error_log("Verification result: " . json_encode($verificationResult));
         error_log("URL parameters: " . json_encode($_GET));
         
@@ -139,6 +145,20 @@ try {
     } else {
         $paymentStatus = 'failed';
         $paymentMessage = $verificationResult['message'] ?? 'Payment verification failed';
+        
+        // Log detailed information for debugging
+        error_log("Payment verification failed for reference: $reference");
+        error_log("URL status: $urlStatus");
+        error_log("Is URL status successful: " . ($isUrlStatusSuccessful ? 'YES' : 'NO'));
+        error_log("Verification result: " . json_encode($verificationResult));
+        error_log("All URL parameters: " . json_encode($_GET));
+        error_log("All POST parameters: " . json_encode($_POST));
+        
+        // If we have a transaction_id but verification failed, this might be a timing issue
+        if (isset($_GET['transaction_id']) && $urlStatus) {
+            error_log("Transaction ID present: " . $_GET['transaction_id'] . " with status: $urlStatus");
+            error_log("This might be a timing issue with payment verification");
+        }
     }
     
 } catch (Exception $e) {
