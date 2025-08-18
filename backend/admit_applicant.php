@@ -1,5 +1,8 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 if (!isset($_SESSION['admin_id'])) {
     header('Location: admin_login.php');
     exit;
@@ -7,7 +10,19 @@ if (!isset($_SESSION['admin_id'])) {
 require_once 'db_connect.php';
 
 $id = intval($_GET['id'] ?? 0);
-$app = $conn->query("SELECT * FROM applications WHERE id = $id")->fetch_assoc();
+
+if ($id <= 0) {
+    $_SESSION['admin_message'] = ['type' => 'error', 'text' => 'Invalid applicant ID.'];
+    header('Location: applicants.php');
+    exit;
+}
+
+$stmt = $conn->prepare("SELECT * FROM applications WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$app = $result->fetch_assoc();
+$stmt->close();
 
 if (!$app) {
     $_SESSION['admin_message'] = ['type' => 'error', 'text' => 'Applicant not found.'];
@@ -16,7 +31,10 @@ if (!$app) {
 }
 
 // Update application status to approved
-$updateResult = $conn->query("UPDATE applications SET application_status = 'approved', updated_at = NOW() WHERE id = $id");
+$stmt = $conn->prepare("UPDATE applications SET application_status = 'admitted', updated_at = NOW() WHERE id = ?");
+$stmt->bind_param("i", $id);
+$updateResult = $stmt->execute();
+$stmt->close();
 
 if ($updateResult) {
     // Send admission email
@@ -48,6 +66,12 @@ if ($updateResult) {
 }
 
 $conn->close();
-header('Location: applicants.php');
+
+// Ensure proper redirect
+if (headers_sent()) {
+    echo "<script>window.location.href = 'applicants.php';</script>";
+} else {
+    header('Location: applicants.php');
+}
 exit;
 ?> 

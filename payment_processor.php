@@ -239,16 +239,28 @@ class PaymentProcessor {
      */
     public function updateTransactionStatus($reference, $status, $gatewayReference = null, $paymentMethod = null) {
         if ($gatewayReference && $paymentMethod) {
-            // Update status, gateway_reference, and payment_method
-            $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, payment_method = ?, updated_at = NOW() WHERE reference = ?");
+            // Update status, gateway_reference, payment_method, and paid_at for successful payments
+            if ($status === PAYMENT_STATUS_SUCCESS) {
+                $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, payment_method = ?, paid_at = NOW(), updated_at = NOW() WHERE reference = ?");
+            } else {
+                $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, payment_method = ?, updated_at = NOW() WHERE reference = ?");
+            }
             $stmt->bind_param("ssss", $status, $gatewayReference, $paymentMethod, $reference);
         } elseif ($gatewayReference) {
             // Update both status and gateway_reference
-        $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
-        $stmt->bind_param("sss", $status, $gatewayReference, $reference);
+            if ($status === PAYMENT_STATUS_SUCCESS) {
+                $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, paid_at = NOW(), updated_at = NOW() WHERE reference = ?");
+            } else {
+                $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE reference = ?");
+            }
+            $stmt->bind_param("sss", $status, $gatewayReference, $reference);
         } else {
             // Update only status
-            $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, updated_at = NOW() WHERE reference = ?");
+            if ($status === PAYMENT_STATUS_SUCCESS) {
+                $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, paid_at = NOW(), updated_at = NOW() WHERE reference = ?");
+            } else {
+                $stmt = $this->conn->prepare("UPDATE transactions SET status = ?, updated_at = NOW() WHERE reference = ?");
+            }
             $stmt->bind_param("ss", $status, $reference);
         }
         
@@ -329,8 +341,7 @@ class PaymentProcessor {
             $msg .= "Payment Amount: ₦" . number_format($application['amount']) . "\n";
             $msg .= "Payment Reference: " . $application['reference'] . "\n";
             $msg .= "Payment Date: " . date('F j, Y \a\t g:i A') . "\n\n";
-            $msg .= "Your application is now complete and has been submitted for review.\n";
-            $msg .= "Our admissions team will review your application and contact you within 3-5 business days.\n\n";
+            $msg .= "Your application is now complete and has been submitted for review.\n\n";
             $msg .= "Next Steps:\n";
             $msg .= "1. Keep this email for your records\n";
             $msg .= "2. Check your email regularly for updates\n";

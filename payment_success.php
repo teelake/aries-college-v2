@@ -193,7 +193,7 @@ function sendPaymentConfirmationEmail($application, $transaction) {
         $msg .= "Application Details:\n";
         $msg .= "Program: {$application['program_applied']}\n";
         $msg .= "Application ID: {$application['id']}\n\n";
-        $msg .= "Your application is now being processed. You will receive further updates via email.\n\n";
+        $msg .= "Your application is now being processed.\n\n";
         $msg .= "Thank you for choosing Aries College of Health Management & Technology!\n\n";
         $msg .= "Best regards,\n";
         $msg .= "Admissions Team\n";
@@ -238,8 +238,7 @@ function sendApplicationConfirmationEmail($application, $transaction) {
         $msg .= "Amount: ₦" . number_format($transaction['amount'], 2) . "\n";
         $msg .= "Date: " . date('F j, Y g:i A', strtotime($transaction['updated_at'])) . "\n";
         $msg .= "Status: Successful\n\n";
-        $msg .= "Your application is now complete and will be reviewed by our admissions team.\n";
-        $msg .= "You will receive further updates via email regarding your application status.\n\n";
+        $msg .= "Your application is now complete and will be reviewed by our admissions team.\n\n";
         $msg .= "Thank you for choosing Aries College of Health Management & Technology!\n\n";
         $msg .= "Best regards,\n";
         $msg .= "Admissions Team\n";
