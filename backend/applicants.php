@@ -158,6 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <th>Name</th>
                     <th>Program</th>
                     <th>Email</th>
+                    <th>Result Status</th>
                     <th>Status</th>
                     <th>Created</th>
                     <th>Actions</th>
@@ -170,6 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td><?php echo htmlspecialchars($row['full_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['program_applied']); ?></td>
                     <td><?php echo htmlspecialchars($row['email']); ?></td>
+                    <td><?php echo ucfirst(str_replace('_', ' ', $row['result_status'] ?? 'available')); ?></td>
                     <td class="status-<?php echo $row['application_status']; ?>">
                         <?php 
                         $statusLabels = [

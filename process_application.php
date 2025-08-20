@@ -32,11 +32,12 @@ try {
     $lga = clean($_POST['lga'] ?? '', $conn);
     $lastSchool = clean($_POST['lastSchool'] ?? '', $conn);
     $qualification = clean($_POST['qualification'] ?? '', $conn);
+    $resultStatus = clean($_POST['resultStatus'] ?? '', $conn);
     $yearCompleted = clean($_POST['yearCompleted'] ?? '', $conn);
     $course = clean($_POST['course'] ?? '', $conn);
     
     // Validate required fields
-    if (!$fullName || !$email || !$phone || !$dateOfBirth || !$gender || !$address || !$state || !$lga || !$qualification || !$yearCompleted || !$course) {
+    if (!$fullName || !$email || !$phone || !$dateOfBirth || !$gender || !$address || !$state || !$lga || !$qualification || !$resultStatus || !$yearCompleted || !$course) {
         throw new Exception('Please fill all required fields.');
     }
     
@@ -62,14 +63,19 @@ try {
         throw new Exception('Photo upload is required.');
     }
     
-    if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] === UPLOAD_ERR_OK) {
-        $certExt = pathinfo($_FILES['certificate']['name'], PATHINFO_EXTENSION);
-        $certificatePath = $certificatesDir . uniqid('cert_') . '.' . $certExt;
-        if (!move_uploaded_file($_FILES['certificate']['tmp_name'], $certificatePath)) {
-            throw new Exception('Failed to upload certificate.');
-        }
+    // Handle certificate upload based on result status
+    if ($resultStatus === 'awaiting_result') {
+        $certificatePath = ''; // No certificate required for awaiting result
     } else {
-        throw new Exception('Certificate upload is required.');
+        if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] === UPLOAD_ERR_OK) {
+            $certExt = pathinfo($_FILES['certificate']['name'], PATHINFO_EXTENSION);
+            $certificatePath = $certificatesDir . uniqid('cert_') . '.' . $certExt;
+            if (!move_uploaded_file($_FILES['certificate']['tmp_name'], $certificatePath)) {
+                throw new Exception('Failed to upload certificate.');
+            }
+        } else {
+            throw new Exception('Certificate upload is required when result is available.');
+        }
     }
     
     // Check for duplicate email or phone
@@ -83,8 +89,8 @@ try {
     $dupStmt->close();
     
     // Insert application into database with pending payment status
-    $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, year_completed, program_applied, photo_path, certificate_path, payment_status, application_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'submitted', NOW())");
-    $stmt->bind_param("ssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $yearCompleted, $course, $photoPath, $certificatePath);
+    $stmt = $conn->prepare("INSERT INTO applications (full_name, email, phone, date_of_birth, gender, address, state, lga, last_school, qualification, result_status, year_completed, program_applied, photo_path, certificate_path, payment_status, application_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'submitted', NOW())");
+    $stmt->bind_param("sssssssssssssss", $fullName, $email, $phone, $dateOfBirth, $gender, $address, $state, $lga, $lastSchool, $qualification, $resultStatus, $yearCompleted, $course, $photoPath, $certificatePath);
     
     if (!$stmt->execute()) {
         throw new Exception('Failed to save application: ' . $conn->error);

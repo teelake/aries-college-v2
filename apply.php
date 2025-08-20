@@ -223,9 +223,10 @@ session_start();
                             <label for="photo">Passport Photo (JPG/PNG) *</label>
                             <input type="file" id="photo" name="photo" accept="image/*" required>
                         </div>
-                        <div class="form-group">
-                            <label for="certificate">Certificate (PDF/JPG/PNG) *</label>
-                            <input type="file" id="certificate" name="certificate" accept=".pdf,image/*" required>
+                        <div class="form-group" id="certificateGroup">
+                            <label for="certificate">Certificate (PDF/JPG/PNG) <span id="certificateRequired">*</span></label>
+                            <input type="file" id="certificate" name="certificate" accept=".pdf,image/*">
+                            <small id="certificateNote" style="color: #6b7280; font-size: 0.875rem;">Upload your certificate or result</small>
                         </div>
                     </div>
                     <div class="payment-info">
@@ -345,6 +346,28 @@ if (stateSelect && lgaSelect) {
 const form = document.querySelector('form');
 const photoInput = document.getElementById('photo');
 const certInput = document.getElementById('certificate');
+const resultStatusSelect = document.getElementById('resultStatus');
+const certificateGroup = document.getElementById('certificateGroup');
+const certificateRequired = document.getElementById('certificateRequired');
+const certificateNote = document.getElementById('certificateNote');
+
+// Handle result status change
+if (resultStatusSelect) {
+    resultStatusSelect.addEventListener('change', function() {
+        const status = this.value;
+        if (status === 'awaiting_result') {
+            certInput.removeAttribute('required');
+            certificateRequired.textContent = '';
+            certificateNote.textContent = 'Certificate upload is optional when awaiting result';
+            certificateNote.style.color = '#059669';
+        } else {
+            certInput.setAttribute('required', 'required');
+            certificateRequired.textContent = '*';
+            certificateNote.textContent = 'Upload your certificate or result';
+            certificateNote.style.color = '#6b7280';
+        }
+    });
+}
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -360,11 +383,14 @@ form.addEventListener('submit', function(e) {
         return;
     }
     
-    // Validate certificate
-    const cert = certInput.files[0];
-    if (!cert || !['application/pdf','image/jpeg','image/png','image/jpg'].includes(cert.type) || cert.size > 5 * 1024 * 1024) {
-        showClientError('Certificate must be PDF, JPG, or PNG and not more than 5MB.');
-        return;
+    // Validate certificate (only if result status is not awaiting_result)
+    const resultStatus = resultStatusSelect ? resultStatusSelect.value : 'available';
+    if (resultStatus !== 'awaiting_result') {
+        const cert = certInput.files[0];
+        if (!cert || !['application/pdf','image/jpeg','image/png','image/jpg'].includes(cert.type) || cert.size > 5 * 1024 * 1024) {
+            showClientError('Certificate must be PDF, JPG, or PNG and not more than 5MB.');
+            return;
+        }
     }
     
     // Show loading state

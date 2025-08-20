@@ -90,6 +90,7 @@ if (!$app) die('Applicant not found.');
                 <dt>LGA</dt><dd><?php echo htmlspecialchars($app['lga']); ?></dd>
                 <dt>Last School</dt><dd><?php echo htmlspecialchars($app['last_school']); ?></dd>
                 <dt>Qualification</dt><dd><?php echo htmlspecialchars($app['qualification']); ?></dd>
+                <dt>Result Status</dt><dd><?php echo ucfirst(str_replace('_', ' ', $app['result_status'] ?? 'available')); ?></dd>
                 <dt>Year Completed</dt><dd><?php echo htmlspecialchars($app['year_completed']); ?></dd>
                 <dt>Status</dt><dd><?php echo ucfirst($app['application_status']); ?></dd>
                 <dt>Submitted</dt><dd><?php echo $app['submitted_at']; ?></dd>

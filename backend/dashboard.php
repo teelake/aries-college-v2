@@ -4,6 +4,12 @@ if (!isset($_SESSION['admin_id'])) {
     header('Location: admin_login.php');
     exit;
 }
+
+// Add cache control headers to prevent caching
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once 'db_connect.php';
 // Fetch analytics
 $totalApplicants = $conn->query("SELECT COUNT(*) FROM applications")->fetch_row()[0];
@@ -36,6 +42,7 @@ while($row = $programData->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Aries College</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="icon" type="image/png" href="../img/logo.png">
     <style>
@@ -72,13 +79,84 @@ while($row = $programData->fetch_assoc()) {
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         };
         document.body.onclick = function() { menu.style.display = 'none'; };
+        
+        // Function to refresh dashboard data via AJAX
+        function refreshDashboardData() {
+            fetch('get_dashboard_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update dashboard cards
+                        document.getElementById('totalApplicants').textContent = data.data.totalApplicants;
+                        document.getElementById('admitted').textContent = data.data.admitted;
+                        document.getElementById('notAdmitted').textContent = data.data.notAdmitted;
+                        document.getElementById('totalPayments').textContent = '₦' + parseFloat(data.data.totalPayments).toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                        document.getElementById('messages').textContent = data.data.messages;
+                        
+                        // Update recent applicants table
+                        updateRecentApplicantsTable(data.data.recentApplicants);
+                        
+                        // Update chart
+                        updateChart(data.data.programLabels, data.data.programCounts);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing dashboard:', error);
+                });
+        }
+        
+        // Function to update recent applicants table
+        function updateRecentApplicantsTable(applicants) {
+            const tbody = document.querySelector('.responsive-table tbody');
+            tbody.innerHTML = '';
+            
+            applicants.forEach(applicant => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${applicant.full_name}</td>
+                    <td>${applicant.email}</td>
+                    <td>${applicant.program_applied}</td>
+                    <td>${applicant.created_at}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Function to update chart
+        function updateChart(labels, data) {
+            if (window.programBarChart) {
+                window.programBarChart.data.labels = labels;
+                window.programBarChart.data.datasets[0].data = data;
+                window.programBarChart.update();
+            }
+        }
+        
+        // Auto-refresh dashboard data every 30 seconds
+        setInterval(refreshDashboardData, 30000);
     });
+    
+    // Function to manually refresh dashboard
+    function refreshDashboard() {
+        refreshDashboardData();
+    }
     </script>
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
     <div class="main-content">
         <div class="profile-bar">
+            <button onclick="refreshDashboard()" style="
+                background: #1e3a8a; 
+                color: white; 
+                border: none; 
+                padding: 8px 16px; 
+                border-radius: 6px; 
+                cursor: pointer; 
+                margin-right: 15px;
+                font-size: 14px;
+            " title="Refresh Dashboard">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
             <div class="profile-dropdown">
                 <button id="profileBtn" class="profile-btn"><?php echo strtoupper(substr($admin_username,0,1)); ?></button>
                 <div id="profileMenu" class="profile-menu">
@@ -89,11 +167,11 @@ while($row = $programData->fetch_assoc()) {
             </div>
         </div>
         <div class="dashboard-cards">
-            <div class="card">Total Applicants<span><?php echo $totalApplicants; ?></span></div>
-            <div class="card">Admitted<span><?php echo $admitted; ?></span></div>
-            <div class="card">Not Admitted<span><?php echo $notAdmitted; ?></span></div>
-            <div class="card">Payments<span>₦<?php echo number_format($totalPayments,2); ?></span></div>
-            <div class="card">Messages<span><?php echo $messages; ?></span></div>
+            <div class="card">Total Applicants<span id="totalApplicants"><?php echo $totalApplicants; ?></span></div>
+            <div class="card">Admitted<span id="admitted"><?php echo $admitted; ?></span></div>
+            <div class="card">Not Admitted<span id="notAdmitted"><?php echo $notAdmitted; ?></span></div>
+            <div class="card">Payments<span id="totalPayments">₦<?php echo number_format($totalPayments,2); ?></span></div>
+            <div class="card">Messages<span id="messages"><?php echo $messages; ?></span></div>
         </div>
         <div class="analytics-section">
             <h3>Recent Applicants</h3>
@@ -119,7 +197,7 @@ while($row = $programData->fetch_assoc()) {
     <script>
     // Bar chart for applicants per program
     const ctx = document.getElementById('programBarChart').getContext('2d');
-    const programBarChart = new Chart(ctx, {
+    window.programBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: <?php echo json_encode($programLabels); ?>,
