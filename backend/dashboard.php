@@ -7,8 +7,8 @@ if (!isset($_SESSION['admin_id'])) {
 require_once 'db_connect.php';
 // Fetch analytics
 $totalApplicants = $conn->query("SELECT COUNT(*) FROM applications")->fetch_row()[0];
-$admitted = $conn->query("SELECT COUNT(*) FROM applications WHERE status='admitted'")->fetch_row()[0];
-$notAdmitted = $conn->query("SELECT COUNT(*) FROM applications WHERE status='not_admitted'")->fetch_row()[0];
+$admitted = $conn->query("SELECT COUNT(*) FROM applications WHERE application_status='admitted'")->fetch_row()[0];
+$notAdmitted = $conn->query("SELECT COUNT(*) FROM applications WHERE application_status='not_admitted'")->fetch_row()[0];
 $totalPayments = $conn->query("SELECT IFNULL(SUM(amount),0) FROM transactions WHERE status='success'")->fetch_row()[0];
 $messages = $conn->query("SELECT COUNT(*) FROM contact_messages")->fetch_row()[0];
 $recentApplicants = $conn->query("SELECT full_name, email, program_applied, submitted_at FROM applications ORDER BY submitted_at DESC LIMIT 5");
