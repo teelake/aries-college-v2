@@ -178,7 +178,6 @@ session_start();
                                 <option value="WAEC">WAEC</option>
                                 <option value="NECO">NECO</option>
                                 <option value="NABTEB">NABTEB</option>
-                                <option value="awaiting_result">Awaiting Result</option>
                             </select>
                         </div>
                         <div class="form-group">
