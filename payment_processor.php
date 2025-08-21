@@ -537,7 +537,7 @@ class PaymentProcessor {
                 <div class="footer">
                     <p>Aries College of Health Management & Technology</p>
                     <p>Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan</p>
-                    <p>Phone: 08108626169 | Email: info@achtech.org.ng</p>
+                    <p>Phone: 0901 216 4632 | Email: info@achtech.org.ng</p>
                     <p>This is an official document. Please keep it safe.</p>
                 </div>
                 
@@ -582,7 +582,7 @@ class PaymentProcessor {
         
         $text .= "Aries College of Health Management & Technology\n";
         $text .= "Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan\n";
-        $text .= "Phone: 08108626169 | Email: info@achtech.org.ng";
+        $text .= "Phone: 0901 216 4632 | Email: info@achtech.org.ng";
         
         return $text;
     }

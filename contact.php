@@ -124,9 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fas fa-phone"></i>
                     </div>
                     <h4>Phone Numbers</h4>
-                    <p>08108626169</p>
-                    <p>09066540404</p>
-                    <p>09012164632</p>
+                    <p>0901 216 4632</p>
+                    <p>0906 436 9657</p>
+                    <p>0906 654 0404</p>
                 </div>
                 
                 <div class="contact-item">
