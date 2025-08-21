@@ -82,6 +82,13 @@ while($row = $programData->fetch_assoc()) {
         
         // Function to refresh dashboard data via AJAX
         function refreshDashboardData() {
+            const refreshBtn = document.querySelector('button[onclick="refreshDashboard()"]');
+            const originalText = refreshBtn.innerHTML;
+            
+            // Show loading state
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
             fetch('get_dashboard_data.php')
                 .then(response => response.json())
                 .then(data => {
@@ -98,10 +105,32 @@ while($row = $programData->fetch_assoc()) {
                         
                         // Update chart
                         updateChart(data.data.programLabels, data.data.programCounts);
+                        
+                        // Show success feedback
+                        refreshBtn.innerHTML = '<i class="fas fa-check"></i> Refreshed!';
+                        refreshBtn.style.background = '#10b981';
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            refreshBtn.innerHTML = originalText;
+                            refreshBtn.style.background = '#1e3a8a';
+                            refreshBtn.disabled = false;
+                        }, 2000);
                     }
                 })
                 .catch(error => {
                     console.error('Error refreshing dashboard:', error);
+                    
+                    // Show error feedback
+                    refreshBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error!';
+                    refreshBtn.style.background = '#ef4444';
+                    
+                    // Reset button after 3 seconds
+                    setTimeout(() => {
+                        refreshBtn.innerHTML = originalText;
+                        refreshBtn.style.background = '#1e3a8a';
+                        refreshBtn.disabled = false;
+                    }, 3000);
                 });
         }
         
@@ -133,12 +162,12 @@ while($row = $programData->fetch_assoc()) {
         
         // Auto-refresh dashboard data every 30 seconds
         setInterval(refreshDashboardData, 30000);
+        
+        // Make refreshDashboard function globally accessible
+        window.refreshDashboard = function() {
+            refreshDashboardData();
+        };
     });
-    
-    // Function to manually refresh dashboard
-    function refreshDashboard() {
-        refreshDashboardData();
-    }
     </script>
 </head>
 <body>
