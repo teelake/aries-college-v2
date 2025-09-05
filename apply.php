@@ -196,6 +196,11 @@ session_start();
                             <label for="course">Which program are you applying for? *</label>
                             <select id="course" name="course" required>
                                 <option value="">Select Program</option>
+
+                                <option value="Caregiver - Short Course">Caregiver - Short Course </option>
+                                <option value="Basic Life Support - Short Course">Basic Life Support - Short Course</option>
+                                <option value="Health Assistant - Short Course ">Health Assistant - Short Course </option>
+                                <option value="Maternity Assistant - Short Course">Maternity Assistant - Short Course</option>
                                 <option value="Community Health">Community Health</option>
                                 <option value="Public Health">Public Health</option>
                                 <option value="Health Information Management">Health Information Management</option>
