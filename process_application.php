@@ -134,10 +134,10 @@ try {
         }
     }
     
-    // Return success response with email confirmation
+    // Return success response with payment redirect
     echo json_encode([
         'success' => true,
-        'message' => 'Application submitted successfully! We have sent you an email with your application details and payment link. Please check your email to complete your payment.',
+        'message' => 'Application submitted successfully! Redirecting to payment...',
         'data' => [
             'application_id' => $applicationId,
             'payment_url' => $paymentResult['authorization_url'],
@@ -272,15 +272,15 @@ function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
             
             <div class="section">
                 <h2 style="color: #059669; text-align: center;">✅ Application Successfully Received!</h2>
-                <p style="text-align: center; color: #64748b;">Dear ' . htmlspecialchars($application['full_name']) . ', thank you for submitting your application to Aries College. Please complete your payment to finalize your application.</p>
+                <p style="text-align: center; color: #64748b;">Dear ' . htmlspecialchars($application['full_name']) . ', your application has been successfully submitted and you should have been redirected to complete payment.</p>
             </div>
             
             <!-- Payment Section -->
             <div class="payment-section">
                 <h3 style="color: #92400e; margin-top: 0;">💳 Complete Your Payment</h3>
                 <p style="margin: 10px 0;">Application Fee: <span class="payment-amount">₦10,230</span></p>
-                <p style="color: #92400e; font-size: 16px; margin: 15px 0;">Please click the button below to complete your payment securely and finalize your application.</p>
-                <a href="' . generatePaymentPageUrl($applicationId, $email) . '" class="payment-btn">🛒 Pay Now - ₦10,230</a>
+                <p style="color: #dc2626; font-size: 16px; font-weight: bold; margin: 15px 0;">⚠️ If you have NOT completed your payment yet, please click the button below to complete your payment now!</p>
+                <a href="' . generatePaymentPageUrl($applicationId, $email) . '" class="payment-btn">🛒 Complete Payment - ₦10,230</a>
                 <p style="font-size: 12px; color: #92400e; margin-top: 10px;">Payment Reference: ' . $reference . '</p>
                 <p style="color: #92400e; font-size: 14px; margin-top: 15px; font-style: italic;">Your application will only be processed after successful payment.</p>
             </div>
@@ -352,7 +352,7 @@ function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
             <div class="section">
                 <div class="section-title">ℹ️ Important Information</div>
                 <ul style="color: #374151; line-height: 1.6;">
-                    <li><strong>Next Step:</strong> Please complete your payment using the link above to finalize your application</li>
+                    <li><strong>Payment Status:</strong> If you have NOT completed payment yet, please use the payment link above</li>
                     <li><strong>Application Processing:</strong> Your application will only be processed after successful payment</li>
                     <li><strong>Payment Link:</strong> You can use the payment link in this email anytime to complete your payment</li>
                     <li><strong>Secure Payment:</strong> All payments are processed securely through Flutterwave/Paystack</li>
@@ -360,8 +360,8 @@ function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
                 </ul>
             </div>
             
-            <div class="alert alert-info">
-                <strong>💡 Note:</strong> This email contains your application details and payment link. Please complete your payment as soon as possible to ensure your application is processed. You can use the payment link in this email at any time.
+            <div class="warning">
+                <strong>⚠️ URGENT:</strong> If you have NOT completed your payment yet, please click the payment button above immediately. Your application will remain pending until payment is confirmed. This email serves as your backup payment link.
             </div>
             
             <div class="footer">
@@ -386,9 +386,10 @@ function generateApplicationEmailText($application, $paymentUrl, $reference) {
     
     $text .= "Dear " . $application['full_name'] . ",\n\n";
     $text .= "✅ Your application has been successfully submitted!\n\n";
-    $text .= "Thank you for submitting your application to Aries College. Please complete your payment to finalize your application.\n\n";
+    $text .= "Your application has been submitted and you should have been redirected to complete payment.\n\n";
     
-    $text .= "PAYMENT REQUIRED:\n";
+    $text .= "⚠️ IMPORTANT - PAYMENT REQUIRED:\n";
+    $text .= "If you have NOT completed your payment yet, please use the payment link below immediately!\n\n";
     $text .= "Application Fee: ₦10,230\n";
     $text .= "Payment Reference: " . $reference . "\n";
     $text .= "Payment Link: " . generatePaymentPageUrl($application['id'], $application['email']) . "\n\n";
@@ -409,10 +410,10 @@ function generateApplicationEmailText($application, $paymentUrl, $reference) {
     $text .= "Year Completed: " . date('F j, Y', strtotime($application['year_completed'])) . "\n";
     $text .= "Program Applied: " . $application['program_applied'] . "\n\n";
     
-    $text .= "IMPORTANT:\n";
-    $text .= "- Please complete your payment using the link above to finalize your application\n";
+    $text .= "URGENT - IMPORTANT:\n";
+    $text .= "- If you have NOT completed payment yet, please use the payment link above immediately!\n";
     $text .= "- Your application will only be processed after successful payment\n";
-    $text .= "- You can use the payment link in this email anytime to complete your payment\n";
+    $text .= "- This email serves as your backup payment link\n";
     $text .= "- All payments are processed securely\n";
     $text .= "- Contact admissions@achtech.org.ng if you have questions\n\n";
     

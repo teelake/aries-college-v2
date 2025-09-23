@@ -417,19 +417,22 @@ form.addEventListener('submit', function(e) {
     .then(data => {
         console.log('Response data:', data);
         if (data.success) {
-                    // Show success message with email confirmation
-                    showMessage('Application submitted successfully! We have sent you an email with your application details and payment link. Please check your email to complete your payment.', 'success');
+                    // Show success message and redirect to payment
+                    showMessage('Application submitted successfully! Redirecting to payment...', 'success');
                     
                     // Store payment reference for later use
                     if (data.data && data.data.reference) {
                         sessionStorage.setItem('payment_reference', data.data.reference);
                     }
                     
-                    // Reset form after successful submission
-                    form.reset();
-                    
-                    // Scroll to top to show success message
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Redirect to payment after 2 seconds to show message
+                    setTimeout(() => {
+                        if (data.data && data.data.payment_url) {
+                            window.location.href = data.data.payment_url;
+                        } else {
+                            showMessage('Payment URL not received. Please check your email for payment link.', 'error');
+                        }
+                    }, 2000);
         } else {
                     showMessage(data.message || 'An error occurred. Please try again.', 'error');
         }
