@@ -417,7 +417,7 @@ form.addEventListener('submit', function(e) {
     .then(data => {
         console.log('Response data:', data);
         if (data.success) {
-                    // Show success message immediately
+                    // Show success message and redirect to payment
                     showMessage('Application submitted successfully! Redirecting to payment...', 'success');
                     
                     // Store payment reference for later use
@@ -425,12 +425,14 @@ form.addEventListener('submit', function(e) {
                         sessionStorage.setItem('payment_reference', data.data.reference);
                     }
                     
-                    // Redirect to payment immediately
-                    if (data.data && data.data.payment_url) {
-                window.location.href = data.data.payment_url;
-                    } else {
-                        showMessage('Payment URL not received. Please try again.', 'error');
-                    }
+                    // Redirect to payment after 2 seconds to show message
+                    setTimeout(() => {
+                        if (data.data && data.data.payment_url) {
+                            window.location.href = data.data.payment_url;
+                        } else {
+                            showMessage('Payment URL not received. Please check your email for payment link.', 'error');
+                        }
+                    }, 2000);
         } else {
                     showMessage(data.message || 'An error occurred. Please try again.', 'error');
         }

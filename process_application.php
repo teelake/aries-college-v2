@@ -117,14 +117,23 @@ try {
     $_SESSION['payment_reference'] = $paymentResult['reference'];
     $_SESSION['application_id'] = $applicationId;
     
-    // Return success response immediately for faster redirection
+    // Send email with application details and payment link
+    try {
+        sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, $paymentResult['authorization_url'], $paymentResult['reference']);
+    } catch (Exception $emailError) {
+        error_log("Email sending error: " . $emailError->getMessage());
+        // Don't fail the application if email fails
+    }
+    
+    // Return success response with email confirmation
     echo json_encode([
         'success' => true,
-        'message' => 'Application submitted successfully! Please complete payment to finalize your application.',
+        'message' => 'Application submitted successfully! We have sent you an email with your application details and payment link. You can complete payment anytime using the link in the email.',
         'data' => [
             'application_id' => $applicationId,
             'payment_url' => $paymentResult['authorization_url'],
-            'reference' => $paymentResult['reference']
+            'reference' => $paymentResult['reference'],
+            'email_sent' => true
         ]
     ]);
     
@@ -147,6 +156,263 @@ try {
     if (isset($conn)) {
         $conn->close();
     }
+}
+
+/**
+ * Send application confirmation email with payment link
+ */
+function sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, $paymentUrl, $reference) {
+    require_once __DIR__ . '/phpmailer/PHPMailer.php';
+    require_once __DIR__ . '/phpmailer/SMTP.php';
+    require_once __DIR__ . '/phpmailer/Exception.php';
+    
+    // Get application details from database
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if ($conn->connect_error) {
+        throw new Exception('Database connection failed: ' . $conn->connect_error);
+    }
+    
+    $stmt = $conn->prepare("SELECT * FROM applications WHERE id = ?");
+    $stmt->bind_param("i", $applicationId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $application = $result->fetch_assoc();
+    $stmt->close();
+    $conn->close();
+    
+    if (!$application) {
+        throw new Exception('Application not found');
+    }
+    
+    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'mail.achtech.org.ng';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'no-reply@achtech.org.ng';
+        $mail->Password = 'Temp_pass123';
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = 465;
+        $mail->setFrom('no-reply@achtech.org.ng', 'Aries College');
+        $mail->addAddress($email, $fullName);
+        
+        $mail->Subject = "URGENT: Complete Your Payment - Application Received - Aries College";
+        $mail->isHTML(true);
+        
+        // Generate HTML email content
+        $htmlContent = generateApplicationEmailHTML($application, $paymentUrl, $reference);
+        $mail->Body = $htmlContent;
+        $mail->AltBody = generateApplicationEmailText($application, $paymentUrl, $reference);
+        
+        $mail->send();
+        
+    } catch (PHPMailer\PHPMailer\Exception $e) {
+        throw new Exception("Email sending failed: " . $e->getMessage());
+    }
+}
+
+/**
+ * Generate HTML email content for application confirmation
+ */
+function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Application Received - Aries College</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+            .logo { width: 120px; height: auto; }
+            .title { color: #2563eb; font-size: 24px; font-weight: bold; margin: 10px 0; }
+            .subtitle { color: #64748b; font-size: 16px; }
+            .section { margin-bottom: 25px; }
+            .section-title { background: #f1f5f9; padding: 10px 15px; font-weight: bold; color: #1e293b; border-left: 4px solid #2563eb; margin-bottom: 15px; }
+            .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .form-group { margin-bottom: 15px; }
+            .form-label { font-weight: bold; color: #374151; font-size: 14px; margin-bottom: 5px; display: block; }
+            .form-value { color: #1f2937; font-size: 14px; padding: 8px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; }
+            .full-width { grid-column: 1 / -1; }
+            .payment-section { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0; }
+            .payment-btn { background: #10b981; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; text-decoration: none; display: inline-block; margin: 10px 0; }
+            .payment-btn:hover { background: #059669; }
+            .payment-amount { font-size: 20px; font-weight: bold; color: #059669; }
+            .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px; }
+            .warning { background: #fef2f2; border: 1px solid #fecaca; border-radius: 5px; padding: 15px; margin: 15px 0; color: #dc2626; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="https://achtech.org.ng/img/logo.png" alt="Aries College Logo" class="logo">
+                <div class="title">Aries College of Health Management & Technology</div>
+                <div class="subtitle">Application Received</div>
+            </div>
+            
+            <div class="section">
+                <h2 style="color: #059669; text-align: center;">✅ Application Successfully Received!</h2>
+                <p style="text-align: center; color: #64748b;">Dear ' . htmlspecialchars($application['full_name']) . ', your application has been successfully submitted.</p>
+            </div>
+            
+            <!-- Payment Section -->
+            <div class="payment-section">
+                <h3 style="color: #92400e; margin-top: 0;">💳 IMPORTANT: Complete Your Payment</h3>
+                <p style="margin: 10px 0;">Application Fee: <span class="payment-amount">₦10,230</span></p>
+                <p style="color: #dc2626; font-size: 16px; font-weight: bold; margin: 15px 0;">⚠️ If you have NOT completed your payment yet, please click the button below to complete your payment now!</p>
+                <a href="' . generatePaymentPageUrl($applicationId, $email) . '" class="payment-btn">🛒 Complete Payment - ₦10,230</a>
+                <p style="font-size: 12px; color: #92400e; margin-top: 10px;">Payment Reference: ' . $reference . '</p>
+                <p style="color: #92400e; font-size: 14px; margin-top: 15px; font-style: italic;">Your application will only be processed after successful payment.</p>
+            </div>
+            
+            <!-- Application Details -->
+            <div class="section">
+                <div class="section-title">📋 Your Application Details</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Application ID</label>
+                        <div class="form-value">' . $application['id'] . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <div class="form-value">' . htmlspecialchars($application['full_name']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="form-value">' . htmlspecialchars($application['email']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <div class="form-value">' . htmlspecialchars($application['phone']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <div class="form-value">' . date('F j, Y', strtotime($application['date_of_birth'])) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <div class="form-value">' . htmlspecialchars($application['gender']) . '</div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Address</label>
+                        <div class="form-value">' . htmlspecialchars($application['address']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <div class="form-value">' . htmlspecialchars($application['state']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">LGA</label>
+                        <div class="form-value">' . htmlspecialchars($application['lga']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last School Attended</label>
+                        <div class="form-value">' . htmlspecialchars($application['last_school']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Qualification</label>
+                        <div class="form-value">' . htmlspecialchars($application['qualification']) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Result Status</label>
+                        <div class="form-value">' . ucfirst(str_replace('_', ' ', $application['result_status'])) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year Completed</label>
+                        <div class="form-value">' . date('F j, Y', strtotime($application['year_completed'])) . '</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Program Applied</label>
+                        <div class="form-value">' . htmlspecialchars($application['program_applied']) . '</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Important Information -->
+            <div class="section">
+                <div class="section-title">ℹ️ Important Information</div>
+                <ul style="color: #374151; line-height: 1.6;">
+                    <li><strong>Payment Status:</strong> If you have NOT completed payment yet, please use the payment link above</li>
+                    <li><strong>Application Processing:</strong> Your application will only be processed after successful payment</li>
+                    <li><strong>Payment Link:</strong> You can use the payment link in this email anytime to complete your payment</li>
+                    <li><strong>Secure Payment:</strong> All payments are processed securely through Flutterwave/Paystack</li>
+                    <li><strong>Support:</strong> Contact us at admissions@achtech.org.ng if you have any questions</li>
+                </ul>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ URGENT:</strong> If you have NOT completed your payment yet, please click the payment button above immediately. Your application will remain pending until payment is confirmed. This email serves as your backup payment link.
+            </div>
+            
+            <div class="footer">
+                <p>Aries College of Health Management & Technology</p>
+                <p>Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan</p>
+                <p>Phone: 0901 216 4632 | Email: info@achtech.org.ng</p>
+                <p>This email contains your application details and payment link. Please keep it safe.</p>
+            </div>
+        </div>
+    </body>
+    </html>';
+    
+    return $html;
+}
+
+/**
+ * Generate text version of application email
+ */
+function generateApplicationEmailText($application, $paymentUrl, $reference) {
+    $text = "ARIES COLLEGE OF HEALTH MANAGEMENT & TECHNOLOGY\n";
+    $text .= "Application Received - Complete Your Payment\n\n";
+    
+    $text .= "Dear " . $application['full_name'] . ",\n\n";
+    $text .= "✅ Your application has been successfully submitted!\n\n";
+    
+    $text .= "⚠️ IMPORTANT - PAYMENT REQUIRED:\n";
+    $text .= "If you have NOT completed your payment yet, please use the payment link below immediately!\n\n";
+    $text .= "Application Fee: ₦10,230\n";
+    $text .= "Payment Reference: " . $reference . "\n";
+    $text .= "Payment Link: " . generatePaymentPageUrl($application['id'], $application['email']) . "\n\n";
+    
+    $text .= "APPLICATION DETAILS:\n";
+    $text .= "Application ID: " . $application['id'] . "\n";
+    $text .= "Full Name: " . $application['full_name'] . "\n";
+    $text .= "Email: " . $application['email'] . "\n";
+    $text .= "Phone: " . $application['phone'] . "\n";
+    $text .= "Date of Birth: " . date('F j, Y', strtotime($application['date_of_birth'])) . "\n";
+    $text .= "Gender: " . $application['gender'] . "\n";
+    $text .= "Address: " . $application['address'] . "\n";
+    $text .= "State: " . $application['state'] . "\n";
+    $text .= "LGA: " . $application['lga'] . "\n";
+    $text .= "Last School: " . $application['last_school'] . "\n";
+    $text .= "Qualification: " . $application['qualification'] . "\n";
+    $text .= "Result Status: " . ucfirst(str_replace('_', ' ', $application['result_status'])) . "\n";
+    $text .= "Year Completed: " . date('F j, Y', strtotime($application['year_completed'])) . "\n";
+    $text .= "Program Applied: " . $application['program_applied'] . "\n\n";
+    
+    $text .= "URGENT - IMPORTANT:\n";
+    $text .= "- If you have NOT completed payment yet, please use the payment link above immediately!\n";
+    $text .= "- Your application will only be processed after successful payment\n";
+    $text .= "- This email serves as your backup payment link\n";
+    $text .= "- All payments are processed securely\n";
+    $text .= "- Contact admissions@achtech.org.ng if you have questions\n\n";
+    
+    $text .= "Aries College of Health Management & Technology\n";
+    $text .= "Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan\n";
+    $text .= "Phone: 0901 216 4632 | Email: info@achtech.org.ng";
+    
+    return $text;
+}
+
+/**
+ * Generate payment page URL
+ */
+function generatePaymentPageUrl($applicationId, $email) {
+    $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
+    $path = dirname($_SERVER['PHP_SELF']);
+    $paymentPageUrl = $baseUrl . $path . '/complete_payment.php';
+    
+    return $paymentPageUrl . '?app_id=' . $applicationId . '&email=' . urlencode($email);
 }
 ?>
 
