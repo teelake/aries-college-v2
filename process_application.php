@@ -202,7 +202,7 @@ function sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, 
         $mail->Password = 'Temp_pass123';
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port = 465;
-        $mail->SMTPDebug = 0; // Set to 2 for debugging
+        $mail->SMTPDebug = 2; // Enable debug to see what's happening
         $mail->Debugoutput = 'error_log';
         
         $mail->setFrom('no-reply@achtech.org.ng', 'Aries College');
