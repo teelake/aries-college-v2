@@ -120,9 +120,18 @@ try {
     // Send email with application details and payment link
     try {
         sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, $paymentResult['authorization_url'], $paymentResult['reference']);
+        error_log("Email sent successfully to: $email for application ID: $applicationId");
     } catch (Exception $emailError) {
-        error_log("Email sending error: " . $emailError->getMessage());
-        // Don't fail the application if email fails
+        error_log("SMTP email failed for application ID $applicationId: " . $emailError->getMessage());
+        
+        // Try fallback email method
+        try {
+            sendFallbackEmail($applicationId, $email, $fullName, $paymentResult['authorization_url'], $paymentResult['reference']);
+            error_log("Fallback email sent successfully to: $email for application ID: $applicationId");
+        } catch (Exception $fallbackError) {
+            error_log("Both SMTP and fallback email failed for application ID $applicationId: " . $fallbackError->getMessage());
+            // Don't fail the application if email fails
+        }
     }
     
     // Return success response with email confirmation
@@ -193,6 +202,9 @@ function sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, 
         $mail->Password = 'Temp_pass123';
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port = 465;
+        $mail->SMTPDebug = 0; // Set to 2 for debugging
+        $mail->Debugoutput = 'error_log';
+        
         $mail->setFrom('no-reply@achtech.org.ng', 'Aries College');
         $mail->addAddress($email, $fullName);
         
@@ -204,9 +216,16 @@ function sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, 
         $mail->Body = $htmlContent;
         $mail->AltBody = generateApplicationEmailText($application, $paymentUrl, $reference);
         
-        $mail->send();
+        error_log("Attempting to send email to: $email");
+        $result = $mail->send();
+        error_log("Email send result: " . ($result ? 'Success' : 'Failed'));
         
     } catch (PHPMailer\PHPMailer\Exception $e) {
+        error_log("PHPMailer Exception: " . $e->getMessage());
+        error_log("PHPMailer Error Code: " . $e->getCode());
+        throw new Exception("Email sending failed: " . $e->getMessage());
+    } catch (Exception $e) {
+        error_log("General Exception in email sending: " . $e->getMessage());
         throw new Exception("Email sending failed: " . $e->getMessage());
     }
 }
@@ -413,6 +432,140 @@ function generatePaymentPageUrl($applicationId, $email) {
     $paymentPageUrl = $baseUrl . $path . '/complete_payment.php';
     
     return $paymentPageUrl . '?app_id=' . $applicationId . '&email=' . urlencode($email);
+}
+
+/**
+ * Fallback email function using PHP mail() function
+ */
+function sendFallbackEmail($applicationId, $email, $fullName, $paymentUrl, $reference) {
+    // Get application details from database
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if ($conn->connect_error) {
+        throw new Exception('Database connection failed: ' . $conn->connect_error);
+    }
+    
+    $stmt = $conn->prepare("SELECT * FROM applications WHERE id = ?");
+    $stmt->bind_param("i", $applicationId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $application = $result->fetch_assoc();
+    $stmt->close();
+    $conn->close();
+    
+    if (!$application) {
+        throw new Exception('Application not found');
+    }
+    
+    $paymentPageUrl = generatePaymentPageUrl($applicationId, $email);
+    
+    // Prepare email content
+    $subject = "Application Received - Complete Your Payment - Aries College";
+    
+    // Simple HTML email
+    $htmlContent = "
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+            .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+            .title { color: #2563eb; font-size: 24px; font-weight: bold; }
+            .payment-section { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0; }
+            .payment-btn { background: #10b981; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; text-decoration: none; display: inline-block; margin: 10px 0; }
+            .payment-amount { font-size: 20px; font-weight: bold; color: #059669; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <div class='title'>Aries College of Health Management & Technology</div>
+                <div>Application Received</div>
+            </div>
+            
+            <h2 style='color: #059669; text-align: center;'>✅ Application Successfully Received!</h2>
+            <p style='text-align: center;'>Dear " . htmlspecialchars($application['full_name']) . ", thank you for submitting your application to Aries College. Please complete your payment to finalize your application.</p>
+            
+            <div class='payment-section'>
+                <h3>💳 Complete Your Payment</h3>
+                <p>Application Fee: <span class='payment-amount'>₦10,230</span></p>
+                <p>Please click the button below to complete your payment securely and finalize your application.</p>
+                <a href='" . $paymentPageUrl . "' class='payment-btn'>🛒 Pay Now - ₦10,230</a>
+                <p style='font-size: 12px; color: #92400e; margin-top: 10px;'>Payment Reference: " . $reference . "</p>
+                <p style='color: #92400e; font-size: 14px; margin-top: 15px; font-style: italic;'>Your application will only be processed after successful payment.</p>
+            </div>
+            
+            <h3>📋 Your Application Details</h3>
+            <p><strong>Application ID:</strong> " . $application['id'] . "</p>
+            <p><strong>Full Name:</strong> " . htmlspecialchars($application['full_name']) . "</p>
+            <p><strong>Email:</strong> " . htmlspecialchars($application['email']) . "</p>
+            <p><strong>Phone:</strong> " . htmlspecialchars($application['phone']) . "</p>
+            <p><strong>Program Applied:</strong> " . htmlspecialchars($application['program_applied']) . "</p>
+            
+            <h3>ℹ️ Important Information</h3>
+            <ul>
+                <li><strong>Next Step:</strong> Please complete your payment using the link above to finalize your application</li>
+                <li><strong>Application Processing:</strong> Your application will only be processed after successful payment</li>
+                <li><strong>Payment Link:</strong> You can use the payment link in this email anytime to complete your payment</li>
+                <li><strong>Secure Payment:</strong> All payments are processed securely through Flutterwave/Paystack</li>
+                <li><strong>Support:</strong> Contact us at admissions@achtech.org.ng if you have any questions</li>
+            </ul>
+            
+            <p style='background: #fef3c7; padding: 15px; border-radius: 5px; margin: 20px 0;'>
+                <strong>💡 Note:</strong> This email contains your application details and payment link. Please complete your payment as soon as possible to ensure your application is processed. You can use the payment link in this email at any time.
+            </p>
+            
+            <div style='margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;'>
+                <p>Aries College of Health Management & Technology</p>
+                <p>Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan</p>
+                <p>Phone: 0901 216 4632 | Email: info@achtech.org.ng</p>
+                <p>This email contains your application details and payment link. Please keep it safe.</p>
+            </div>
+        </div>
+    </body>
+    </html>";
+    
+    // Simple text version
+    $textContent = "ARIES COLLEGE OF HEALTH MANAGEMENT & TECHNOLOGY
+Application Received - Complete Your Payment
+
+Dear " . $application['full_name'] . ",
+
+✅ Your application has been successfully submitted!
+Thank you for submitting your application to Aries College. Please complete your payment to finalize your application.
+
+PAYMENT REQUIRED:
+Application Fee: ₦10,230
+Payment Reference: " . $reference . "
+Payment Link: " . $paymentPageUrl . "
+
+APPLICATION DETAILS:
+Application ID: " . $application['id'] . "
+Full Name: " . $application['full_name'] . "
+Email: " . $application['email'] . "
+Phone: " . $application['phone'] . "
+Program Applied: " . $application['program_applied'] . "
+
+IMPORTANT:
+- Please complete your payment using the link above to finalize your application
+- Your application will only be processed after successful payment
+- You can use the payment link in this email anytime to complete your payment
+- All payments are processed securely
+- Contact admissions@achtech.org.ng if you have questions
+
+Aries College of Health Management & Technology
+Old Bambo Group of Schools, Falade Layout, Oluyole Extension, Apata, Ibadan
+Phone: 0901 216 4632 | Email: info@achtech.org.ng";
+    
+    // Email headers
+    $headers = "From: Aries College <no-reply@achtech.org.ng>\r\n";
+    $headers .= "Reply-To: no-reply@achtech.org.ng\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+    
+    // Send email using PHP mail function
+    if (!mail($email, $subject, $htmlContent, $headers)) {
+        throw new Exception("PHP mail function failed");
+    }
 }
 ?>
 
