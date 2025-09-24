@@ -134,15 +134,15 @@ try {
         }
     }
     
-    // Return success response with payment redirect
+    // Return success response with email confirmation (Approach 2)
     echo json_encode([
         'success' => true,
-        'message' => 'Application submitted successfully! Redirecting to payment...',
+        'message' => 'Application submitted successfully! We have sent you an email with your application details and payment link. Please check your email to complete your payment.',
         'data' => [
             'application_id' => $applicationId,
-            'payment_url' => $paymentResult['authorization_url'],
             'reference' => $paymentResult['reference'],
-            'email_sent' => true
+            'email_sent' => true,
+            'approach' => 'email_only' // Indicate this is email-only approach
         ]
     ]);
     
