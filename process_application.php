@@ -234,6 +234,9 @@ function sendApplicationEmailWithPaymentLink($applicationId, $email, $fullName, 
  * Generate HTML email content for application confirmation
  */
 function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
+    // Generate payment page URL first
+    $paymentPageUrl = generatePaymentPageUrl($application['id'], $application['email']);
+    
     $html = '
     <!DOCTYPE html>
     <html>
@@ -280,7 +283,7 @@ function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
                 <h3 style="color: #92400e; margin-top: 0;">💳 Complete Your Payment</h3>
                 <p style="margin: 10px 0;">Application Fee: <span class="payment-amount">₦10,230</span></p>
                 <p style="color: #dc2626; font-size: 16px; font-weight: bold; margin: 15px 0;">⚠️ If you have NOT completed your payment yet, please click the button below to complete your payment now!</p>
-                <a href="' . generatePaymentPageUrl($applicationId, $email) . '" class="payment-btn">🛒 Complete Payment - ₦10,230</a>
+                <a href="' . $paymentPageUrl . '" class="payment-btn">🛒 Complete Payment - ₦10,230</a>
                 <p style="font-size: 12px; color: #92400e; margin-top: 10px;">Payment Reference: ' . $reference . '</p>
                 <p style="color: #92400e; font-size: 14px; margin-top: 15px; font-style: italic;">Your application will only be processed after successful payment.</p>
             </div>
@@ -381,6 +384,9 @@ function generateApplicationEmailHTML($application, $paymentUrl, $reference) {
  * Generate text version of application email
  */
 function generateApplicationEmailText($application, $paymentUrl, $reference) {
+    // Generate payment page URL first
+    $paymentPageUrl = generatePaymentPageUrl($application['id'], $application['email']);
+    
     $text = "ARIES COLLEGE OF HEALTH MANAGEMENT & TECHNOLOGY\n";
     $text .= "Application Received - Complete Your Payment\n\n";
     
@@ -392,7 +398,7 @@ function generateApplicationEmailText($application, $paymentUrl, $reference) {
     $text .= "If you have NOT completed your payment yet, please use the payment link below immediately!\n\n";
     $text .= "Application Fee: ₦10,230\n";
     $text .= "Payment Reference: " . $reference . "\n";
-    $text .= "Payment Link: " . generatePaymentPageUrl($application['id'], $application['email']) . "\n\n";
+    $text .= "Payment Link: " . $paymentPageUrl . "\n\n";
     
     $text .= "APPLICATION DETAILS:\n";
     $text .= "Application ID: " . $application['id'] . "\n";
@@ -457,7 +463,7 @@ function sendFallbackEmail($applicationId, $email, $fullName, $paymentUrl, $refe
         throw new Exception('Application not found');
     }
     
-    $paymentPageUrl = generatePaymentPageUrl($applicationId, $email);
+    $paymentPageUrl = generatePaymentPageUrl($application['id'], $application['email']);
     
     // Prepare email content
     $subject = "Application Received - Complete Your Payment - Aries College";
